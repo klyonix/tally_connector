@@ -92,9 +92,11 @@
 								</li>
 							</ul>
 							<p class="mt-1.5 text-p-xs text-ink-gray-5">
-								Import <b>01_masters.xml</b> into Tally before
-								<b>02_vouchers.xml</b>. A voucher naming a ledger Tally has not yet
-								seen is refused.
+								The <b>tally_package</b> zip holds both files, split by month, with
+								the import order and a checksum for each. Extract it before
+								importing: TallyPrime does not read a zip. Import
+								<b>01_masters</b> into Tally before any vouchers file. A voucher
+								naming a ledger Tally has not yet seen is refused.
 							</p>
 						</div>
 					</div>

@@ -107,7 +107,7 @@ jobs:
             tally_connector.tests.test_accounting_only tally_connector.tests.test_imp_regressions \
             tally_connector.tests.test_master_batching tally_connector.tests.test_round_trip \
             tally_connector.tests.test_rounding tally_connector.tests.test_delivery \
-            tally_connector.tests.test_results
+            tally_connector.tests.test_package tally_connector.tests.test_results
 
       - name: Run Tests
         working-directory: /home/runner/frappe-bench

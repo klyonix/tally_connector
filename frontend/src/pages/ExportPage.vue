@@ -245,8 +245,15 @@ async function runFull(push: boolean, format = 'Tally XML') {
 			return
 		}
 		if (!push) {
-			if (r.masters_url) downloadUrl(r.masters_url)
-			if (r.vouchers_url) setTimeout(() => downloadUrl(r.vouchers_url), 600)
+			// One file to move to the Tally PC. The two loose files stay on the job
+			// for anybody who wants them, and are the fallback when no package was
+			// built.
+			if (r.package_url) {
+				downloadUrl(r.package_url)
+			} else {
+				if (r.masters_url) downloadUrl(r.masters_url)
+				if (r.vouchers_url) setTimeout(() => downloadUrl(r.vouchers_url), 600)
+			}
 		}
 		await loadAreas()
 	} catch (e) {
