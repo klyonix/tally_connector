@@ -3,13 +3,13 @@
     <li
       v-for="(stage, i) in stages"
       :key="stage"
-      class="flex items-center gap-2 rounded px-2 py-1 text-p-sm"
+      class="flex items-center gap-2 rounded-4 px-2 py-1 text-p-sm"
       :class="rowClass(i)"
     >
       <span class="flex size-4 shrink-0 items-center justify-center">
-        <LucideCheck v-if="ran(stage, i)" class="size-3.5 text-ink-green-3" />
+        <LucideCheck v-if="ran(stage, i)" class="size-3.5 text-ink-green-6" />
         <LoadingIndicator v-else-if="i === currentIndex && running" class="size-3" />
-        <LucideX v-else-if="i === currentIndex && failed" class="size-3.5 text-ink-red-3" />
+        <LucideX v-else-if="i === currentIndex && failed" class="size-3.5 text-ink-red-6" />
         <span v-else class="size-1.5 rounded-full bg-surface-gray-4" />
       </span>
       <span class="truncate">{{ stage }}</span>

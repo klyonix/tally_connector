@@ -8,14 +8,14 @@
     <ErrorMessage v-if="error" :message="error" class="mb-4" />
 
     <section
-      class="rounded border-2 border-dashed p-6 text-center transition"
+      class="rounded-4 border-2 border-dashed p-6 text-center transition"
       :class="dragging ? 'border-brand-400 bg-brand-50' : 'border-outline-gray-2'"
       @dragover.prevent="dragging = true"
       @dragleave.prevent="dragging = false"
       @drop.prevent="onDrop"
     >
       <LucideFileUp class="mx-auto size-7 text-ink-gray-4" />
-      <p class="mt-2 text-base font-medium text-ink-gray-8">Drop a Tally XML file here</p>
+      <p class="mt-2 text-base-medium text-ink-gray-8">Drop a Tally XML file here</p>
       <p class="mt-0.5 text-p-sm text-ink-gray-5">or choose one from your computer</p>
       <div class="mt-3 flex items-center justify-center gap-2">
         <!-- `hidden`, not `sr-only`. An `sr-only` input is exposed to assistive
@@ -50,23 +50,23 @@
     <section v-if="checked" class="mt-4">
       <div
         v-if="checked.success === false"
-        class="rounded border border-outline-red-2 bg-surface-red-1 p-3 text-p-sm text-ink-red-4"
+        class="rounded-4 border border-outline-red-3 bg-surface-red-1 p-3 text-p-sm text-ink-red-8"
       >
         <p class="font-medium">This file cannot be imported</p>
         <p class="mt-1">{{ checked.error }}</p>
       </div>
       <div
         v-else-if="checked.empty"
-        class="rounded border border-outline-amber-2 bg-surface-amber-1 p-3 text-p-sm text-ink-amber-4"
+        class="rounded-4 border border-outline-amber-3 bg-surface-amber-1 p-3 text-p-sm text-ink-amber-8"
       >
         <p class="font-medium">This file parses but holds nothing to import</p>
         <p class="mt-1">
           No TALLYMESSAGE objects were found. Export it again from Tally with data selected.
         </p>
       </div>
-      <div v-else class="rounded border border-outline-gray-2 p-4">
+      <div v-else class="rounded-4 border border-outline-gray-2 p-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <p class="text-base font-medium text-ink-gray-8">
+          <p class="text-base-medium text-ink-gray-8">
             {{ formatNumber(checked.objects) }} objects ready to import
           </p>
           <Badge v-if="checked.report_name" theme="gray" variant="subtle"
@@ -76,7 +76,7 @@
           <li
             v-for="kind in checked.kinds"
             :key="kind.tag"
-            class="rounded border border-outline-gray-2 px-2 py-1 text-p-xs text-ink-gray-7"
+            class="rounded-4 border border-outline-gray-2 px-2 py-1 text-p-xs text-ink-gray-7"
           >
             <span class="font-medium">{{ kind.tag }}</span>
             <span class="kx-nums ml-1.5 text-ink-gray-5">{{ formatNumber(kind.count) }}</span>
@@ -85,7 +85,7 @@
       </div>
     </section>
 
-    <section v-if="job" class="mt-5 rounded border border-outline-gray-2 p-4">
+    <section v-if="job" class="mt-5 rounded-4 border border-outline-gray-2 p-4">
       <JobProgress :job="job" />
       <div class="mt-3 flex flex-wrap gap-2">
         <Button size="sm" variant="subtle" @click="jobsStore.focus(job)">View details</Button>
@@ -101,8 +101,8 @@
     </section>
 
     <section class="mt-6">
-      <h2 class="mb-2 text-base font-semibold text-ink-gray-8">Recent imports</h2>
-      <div v-if="recent.length" class="overflow-hidden rounded border border-outline-gray-2">
+      <h2 class="mb-2 text-base-semibold text-ink-gray-8">Recent imports</h2>
+      <div v-if="recent.length" class="overflow-hidden rounded-4 border border-outline-gray-2">
         <table class="w-full text-p-sm">
           <thead class="bg-surface-gray-1 text-left text-p-xs uppercase tracking-wide text-ink-gray-5">
             <tr>

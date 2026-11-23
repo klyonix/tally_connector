@@ -1,21 +1,47 @@
 <template>
   <FrappeUIProvider>
-  <div class="flex h-screen w-screen overflow-hidden bg-surface-white text-ink-gray-8">
-    <Sidebar
-      v-model:collapsed="collapsed"
-      :header="sidebarHeader"
-      :sections="sections"
-    >
-      <template #footer-items="{ isCollapsed }">
+  <div class="flex h-screen w-screen overflow-hidden bg-surface-base text-ink-gray-8">
+    <Sidebar v-model:collapsed="collapsed">
+      <SidebarHeader
+        :title="sidebarHeader.title"
+        :subtitle="sidebarHeader.subtitle"
+        :menu-items="sidebarHeader.menuItems"
+      />
+      <div class="flex-1 overflow-y-auto px-2 py-1">
+        <template v-for="section in sections" :key="section.label || 'main'">
+          <SidebarSection v-if="section.label" :label="section.label" collapsible>
+            <SidebarItem
+              v-for="entry in section.items"
+              :key="entry.label"
+              :label="entry.label"
+              :icon="entry.icon"
+              :route="entry.to"
+              :active="entry.isActive"
+            />
+          </SidebarSection>
+          <template v-else>
+            <SidebarItem
+              v-for="entry in section.items"
+              :key="entry.label"
+              :label="entry.label"
+              :icon="entry.icon"
+              :route="entry.to"
+              :active="entry.isActive"
+            />
+          </template>
+        </template>
+      </div>
+      <div class="px-2 pb-2">
         <SidebarItem
-          v-if="!isCollapsed && runningCount"
+          v-if="runningCount"
           label="Sync running"
           :suffix="`${runningCount}`"
           @click="openRunning"
         >
-          <template #icon><LucideActivity class="size-4 text-brand-600" /></template>
+          <template #prefix><LucideActivity class="size-4 text-brand-600" /></template>
         </SidebarItem>
-      </template>
+        <SidebarCollapseToggle />
+      </div>
     </Sidebar>
 
     <div class="flex min-w-0 flex-1 flex-col">
@@ -37,10 +63,10 @@
           <ConnectionBadge />
           <NotificationBell />
 
-          <Dropdown :options="userMenu" placement="right">
+          <Dropdown :options="userMenu" align="end">
             <button
               type="button"
-              class="flex items-center gap-1 rounded p-0.5 hover:bg-surface-gray-2"
+              class="flex items-center gap-1 rounded-4 p-0.5 hover:bg-surface-gray-2"
               :aria-label="`Signed in as ${userName}`"
             >
               <Avatar :label="userName" size="md" />
@@ -71,10 +97,14 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   Avatar,
   Breadcrumbs,
+  call,
   Dropdown,
   FrappeUIProvider,
   Sidebar,
+  SidebarCollapseToggle,
+  SidebarHeader,
   SidebarItem,
+  SidebarSection,
 } from 'frappe-ui'
 
 // Imported as components rather than named as strings: `SidebarItem` renders a
@@ -159,7 +189,7 @@ const sidebarHeader = computed(() => ({
   menuItems: [
     {
       group: app.companies.length > 1 ? 'Switch company' : 'Company',
-      items: app.companies.map((c) => ({
+      options: app.companies.map((c) => ({
         label: c.name,
         description: c.abbr,
         // A tick on the current one, so the dropdown says which books are open
@@ -169,12 +199,13 @@ const sidebarHeader = computed(() => ({
       })),
     },
     {
-      group: '',
-      items: [
-        { label: 'Settings', icon: 'settings', onClick: () => router.push({ name: 'Settings' }) },
+      group: 'App',
+      hideLabel: true,
+      options: [
+        { label: 'Settings', icon: 'lucide-settings', onClick: () => router.push({ name: 'Settings' }) },
         {
           label: 'Open in Desk',
-          icon: 'external-link',
+          icon: 'lucide-external-link',
           onClick: () => window.open('/app/tally-settings', '_blank'),
         },
       ],
@@ -224,8 +255,8 @@ const sections = computed(() => [
 ])
 
 /**
- * `SidebarItem` takes `isActive` as a prop and does not work it out, so an item
- * that is not told is never highlighted. Matched on the resolved path rather
+ * `SidebarItem` works out `active` by matching its route, and the ten area
+ * entries share one route name, so it is passed explicitly. Matched on the resolved path rather
  * than on the route name, because the ten area entries all share one name and
  * differ only in their parameter - matching on the name would light all ten.
  */
@@ -250,21 +281,27 @@ const crumbs = computed(() => {
 const userMenu = computed(() => [
   {
     group: userName.value,
-    items: [
-      { label: 'Settings', icon: 'settings', onClick: () => router.push({ name: 'Settings' }) },
+    options: [
+      { label: 'Settings', icon: 'lucide-settings', onClick: () => router.push({ name: 'Settings' }) },
       {
         label: 'Open in Desk',
-        icon: 'external-link',
+        icon: 'lucide-external-link',
         onClick: () => window.open('/app/tally-settings', '_blank'),
       },
-      {
-        label: 'Log out',
-        icon: 'log-out',
-        onClick: () => (window.location.href = '/api/method/logout'),
-      },
+      { label: 'Log out', icon: 'lucide-log-out', onClick: logOut },
     ],
   },
 ])
+
+/** Frappe accepts a log out only by POST; a link to it is refused and leaves
+ *  the person signed in. */
+async function logOut() {
+  try {
+    await call('logout')
+  } finally {
+    window.location.href = '/login'
+  }
+}
 
 function openRunning() {
   const first = jobsStore.running.value[0]

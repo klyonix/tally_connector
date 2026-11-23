@@ -1,16 +1,17 @@
 <template>
   <Dialog
-    :modelValue="!!job"
-    @update:modelValue="(v: boolean) => !v && close()"
-    :options="{ size: 'xl' }"
+    :open="!!job"
+    @update:open="(v: boolean) => !v && close()"
+    size="xl"
+    bare
   >
-    <template #body>
+    <template #default>
       <div v-if="job" class="p-5">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
-            <h2 class="text-lg font-semibold text-ink-gray-9">
+            <Dialog.Title as="h2" class="text-lg-semibold text-ink-gray-9">
               {{ job.kind === 'export' ? 'Export' : 'Import' }} · {{ job.name }}
-            </h2>
+            </Dialog.Title>
             <p class="mt-0.5 text-p-sm text-ink-gray-6">
               {{ job.company || '—' }}
               <template v-if="job.from_date"> · {{ job.from_date }} to {{ job.to_date }}</template>
@@ -24,7 +25,7 @@
           </div>
         </div>
 
-        <div class="mt-5 rounded border border-outline-gray-2 p-4">
+        <div class="mt-5 rounded-4 border border-outline-gray-2 p-4">
           <JobProgress :job="job" />
         </div>
 
@@ -38,10 +39,10 @@
                   :title="stat.hint || stat.label">
                   {{ stat.label }}
                 </dt>
-                <dd class="kx-nums mt-0.5 text-base font-semibold" :class="stat.tone">
+                <dd class="kx-nums mt-0.5 text-base-semibold" :class="stat.tone">
                   {{ stat.value }}
                 </dd>
-                <dd v-if="stat.hint" class="text-p-xs font-normal text-ink-gray-5">
+                <dd v-if="stat.hint" class="text-p-xs text-ink-gray-5">
                   {{ stat.hint }}
                 </dd>
               </div>
@@ -63,7 +64,7 @@
 
             <div
               v-if="job.error"
-              class="mt-4 rounded border border-outline-red-2 bg-surface-red-1 p-3 text-p-sm text-ink-red-4"
+              class="mt-4 rounded-4 border border-outline-red-3 bg-surface-red-1 p-3 text-p-sm text-ink-red-8"
             >
               <p class="font-medium">This job failed</p>
               <p class="mt-1 whitespace-pre-wrap font-mono text-p-xs">{{ job.error }}</p>
@@ -75,7 +76,7 @@
                 <li
                   v-for="file in job.files"
                   :key="file.file_url"
-                  class="flex items-center justify-between gap-3 rounded border border-outline-gray-2 px-3 py-1.5"
+                  class="flex items-center justify-between gap-3 rounded-4 border border-outline-gray-2 px-3 py-1.5"
                 >
                   <span class="truncate font-mono text-p-xs text-ink-gray-7">{{ file.file_name }}</span>
                   <Button size="sm" variant="subtle" @click="downloadUrl(file.file_url)">
@@ -155,19 +156,19 @@ const stats = computed(() => {
     {
       label: 'Objects written',
       value: formatNumber(j.records),
-      tone: 'text-ink-green-3',
+      tone: 'text-ink-green-6',
       hint: 'masters + vouchers',
     },
     {
       label: 'Failed',
       value: formatNumber(j.failed),
-      tone: j.failed ? 'text-ink-red-3' : 'text-ink-gray-7',
+      tone: j.failed ? 'text-ink-red-6' : 'text-ink-gray-7',
       hint: j.total ? `of ${formatNumber(j.total)} vouchers` : '',
     },
     {
       label: 'Warnings',
       value: formatNumber(j.warnings),
-      tone: j.warnings ? 'text-ink-amber-3' : 'text-ink-gray-7',
+      tone: j.warnings ? 'text-ink-amber-6' : 'text-ink-gray-7',
     },
     { label: 'Duration', value: formatDuration(j.duration), tone: 'text-ink-gray-7' },
   ]

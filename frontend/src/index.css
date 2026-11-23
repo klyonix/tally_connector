@@ -24,8 +24,8 @@
   /* Selected states across frappe-ui land on these two. A soft teal wash rather
      than a saturated fill: this is a dense application and a strong block of
      colour on every active row is noise, not hierarchy. */
-  --surface-selected: var(--kx-brand-100);
-  --surface-menu-bar: #fbfcfc;
+  --surface-elevation-3: var(--kx-brand-100);
+  --surface-sidebar: #fbfcfc;
 }
 
 body {

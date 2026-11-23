@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-x-auto rounded border border-outline-gray-2">
+  <div class="overflow-x-auto rounded-4 border border-outline-gray-2">
     <table class="w-full min-w-[42rem] text-p-sm">
       <thead class="bg-surface-gray-1 text-left text-p-xs uppercase tracking-wide text-ink-gray-5">
         <tr>

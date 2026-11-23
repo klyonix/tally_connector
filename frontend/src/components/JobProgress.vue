@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col gap-2">
     <div class="flex items-baseline justify-between gap-3">
-      <p class="truncate text-base font-medium text-ink-gray-8">
+      <p class="truncate text-base-medium text-ink-gray-8">
         {{ headline }}
       </p>
-      <span class="kx-nums shrink-0 text-base font-semibold tabular-nums text-ink-gray-9">
+      <span class="kx-nums shrink-0 text-base-semibold tabular-nums text-ink-gray-9">
         {{ job.progress }}%
       </span>
     </div>
@@ -18,7 +18,7 @@
       <span v-if="job.total > 0" class="kx-nums">
         {{ formatNumber(job.processed) }} / {{ formatNumber(job.total) }} processed
       </span>
-      <span v-if="job.warnings" class="text-ink-amber-3">
+      <span v-if="job.warnings" class="text-ink-amber-6">
         {{ job.warnings }} {{ job.warnings === 1 ? 'warning' : 'warnings' }}
       </span>
     </div>

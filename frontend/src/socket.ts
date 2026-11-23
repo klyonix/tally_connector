@@ -7,14 +7,27 @@
  * polling rather than to a screen that says nothing. That is what makes the
  * poll a fallback instead of a second implementation of the same thing.
  */
-import { initSocket } from 'frappe-ui'
+import { io, type Socket } from 'socket.io-client'
 
-let socket: any = null
+let socket: Socket | null = null
+
+/**
+ * Frappe's socketio serves each site under its own namespace, on its own port
+ * in development and behind the web server's port in production.
+ */
+function connect(): Socket | null {
+  const w = window as any
+  if (!w.site_name) return null
+  const port = window.location.port ? `:${w.socketio_port || 9000}` : ''
+  const protocol = port ? 'http' : 'https'
+  const url = `${protocol}://${window.location.hostname}${port}/${w.site_name}`
+  return io(url, { withCredentials: true, reconnectionAttempts: 5 })
+}
 
 export function getSocket() {
   if (socket) return socket
   try {
-    socket = initSocket()
+    socket = connect()
   } catch (e) {
     // A dashboard that cannot open a socket must still export. The store polls.
     console.warn('[tally-connector] realtime unavailable, falling back to polling', e)

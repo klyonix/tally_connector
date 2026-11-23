@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="flex shrink-0 items-center gap-1.5 rounded px-1.5 py-1 text-p-sm transition hover:bg-surface-gray-2"
+    class="flex shrink-0 items-center gap-1.5 rounded-4 px-1.5 py-1 text-p-sm transition hover:bg-surface-gray-2"
     :title="title"
     :aria-label="label"
     @click="test"

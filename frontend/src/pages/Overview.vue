@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- The identity sits behind the heading, where the page is quietest. -->
-    <div class="relative mb-4 overflow-hidden rounded border border-outline-gray-2 px-5 py-6">
+    <div class="relative mb-4 overflow-hidden rounded-4 border border-outline-gray-2 px-5 py-6">
       <BrandBackdrop />
       <div class="relative">
         <PageHeader title="Overview" :subtitle="subtitle" class="!pb-0">
@@ -21,7 +21,7 @@
     <!-- Off is a state somebody chose, so it is stated rather than left to be
          discovered when a button refuses. -->
     <div v-if="!app.syncEnabled"
-      class="mb-4 rounded border border-outline-amber-2 bg-surface-amber-1 p-3 text-p-sm text-ink-amber-4">
+      class="mb-4 rounded-4 border border-outline-amber-3 bg-surface-amber-1 p-3 text-p-sm text-ink-amber-8">
       <b>Sync is off.</b> Nothing will be exported or imported until it is turned back on with the
       switch at the top.
     </div>
@@ -31,12 +31,12 @@
          dashboard telling a story. -->
     <section v-if="stalled.length" class="mb-5">
       <div v-for="job in stalled" :key="job.name"
-        class="mb-2 flex flex-wrap items-center justify-between gap-3 rounded border border-outline-amber-2 bg-surface-amber-1 p-3">
+        class="mb-2 flex flex-wrap items-center justify-between gap-3 rounded-4 border border-outline-amber-3 bg-surface-amber-1 p-3">
         <div class="min-w-0">
-          <p class="text-p-sm font-medium text-ink-amber-4">
+          <p class="text-p-sm-medium text-ink-amber-8">
             {{ job.kind === 'export' ? 'Export' : 'Import' }} {{ job.name }} stopped reporting
           </p>
-          <p class="text-p-xs text-ink-amber-4 opacity-80">
+          <p class="text-p-xs text-ink-amber-8 opacity-80">
             Last seen at {{ job.stage }} · {{ formatWhen(job.last_seen) }}. Its worker is probably
             not running.
           </p>
@@ -53,7 +53,7 @@
 
     <!-- A running job leads the page, because if one is running it is the only
          thing anybody opened this page to see. -->
-    <section v-if="running.length" class="mb-5 rounded border border-brand-200 bg-brand-50 p-4">
+    <section v-if="running.length" class="mb-5 rounded-4 border border-brand-200 bg-brand-50 p-4">
       <div v-for="job in running" :key="job.name" class="flex flex-col gap-3">
         <JobProgress :job="job" />
         <div>
@@ -66,10 +66,10 @@
       <div
         v-for="tile in tiles"
         :key="tile.label"
-        class="rounded border border-outline-gray-2 p-3"
+        class="rounded-4 border border-outline-gray-2 p-3"
       >
         <p class="text-p-xs uppercase tracking-wide text-ink-gray-5">{{ tile.label }}</p>
-        <p class="mt-1 truncate text-base font-semibold text-ink-gray-9" :title="tile.value">
+        <p class="mt-1 truncate text-base-semibold text-ink-gray-9" :title="tile.value">
           {{ tile.value }}
         </p>
         <p v-if="tile.hint" class="mt-0.5 truncate text-p-xs text-ink-gray-5">{{ tile.hint }}</p>
@@ -78,8 +78,8 @@
 
     <section class="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div>
-        <h2 class="mb-2 text-base font-semibold text-ink-gray-8">Recent activity</h2>
-        <div v-if="data?.recent?.length" class="overflow-hidden rounded border border-outline-gray-2">
+        <h2 class="mb-2 text-base-semibold text-ink-gray-8">Recent activity</h2>
+        <div v-if="data?.recent?.length" class="overflow-hidden rounded-4 border border-outline-gray-2">
           <table class="w-full text-p-sm">
             <thead class="bg-surface-gray-1 text-left text-p-xs uppercase tracking-wide text-ink-gray-5">
               <tr>
@@ -123,18 +123,18 @@
       </div>
 
       <div>
-        <h2 class="mb-2 text-base font-semibold text-ink-gray-8">Quick actions</h2>
+        <h2 class="mb-2 text-base-semibold text-ink-gray-8">Quick actions</h2>
         <div class="flex flex-col gap-2">
           <button
             v-for="action in actions"
             :key="action.label"
             type="button"
-            class="flex items-start gap-3 rounded border border-outline-gray-2 p-3 text-left transition hover:border-brand-300 hover:bg-brand-50"
+            class="flex items-start gap-3 rounded-4 border border-outline-gray-2 p-3 text-left transition hover:border-brand-300 hover:bg-brand-50"
             @click="action.run"
           >
             <component :is="action.icon" class="mt-0.5 size-4 shrink-0 text-brand-600" />
             <span class="min-w-0">
-              <span class="block text-p-sm font-medium text-ink-gray-8">{{ action.label }}</span>
+              <span class="block text-p-sm-medium text-ink-gray-8">{{ action.label }}</span>
               <span class="block text-p-xs text-ink-gray-5">{{ action.hint }}</span>
             </span>
           </button>

@@ -32,4 +32,7 @@ def get_context(context):
 		)
 
 	context.no_cache = 1
+	# Read by the page's boot script (frappe-ui's jinjaBootData) into `window`,
+	# where the realtime connection finds the site and its socketio port.
+	context.boot = {"site_name": frappe.local.site, "socketio_port": frappe.conf.socketio_port}
 	return context

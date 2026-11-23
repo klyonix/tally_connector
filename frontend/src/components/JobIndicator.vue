@@ -4,7 +4,7 @@
   <button
     v-if="headline"
     type="button"
-    class="flex shrink-0 items-center gap-1.5 rounded border border-brand-200 bg-brand-50 py-1 pl-1.5 pr-2 text-p-sm font-medium text-brand-700 transition hover:bg-brand-100"
+    class="flex shrink-0 items-center gap-1.5 rounded-4 border border-brand-200 bg-brand-50 py-1 pl-1.5 pr-2 text-p-sm-medium text-brand-700 transition hover:bg-brand-100"
     :title="title"
     @click="open"
   >

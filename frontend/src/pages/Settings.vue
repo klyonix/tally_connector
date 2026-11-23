@@ -13,22 +13,22 @@
     <ErrorMessage v-if="error" :message="error" class="mb-4" />
 
     <div v-if="data && !data.can_write"
-      class="mb-4 rounded border border-outline-amber-2 bg-surface-amber-1 p-3 text-p-sm text-ink-amber-4">
+      class="mb-4 rounded-4 border border-outline-amber-3 bg-surface-amber-1 p-3 text-p-sm text-ink-amber-8">
       You can read these settings but not change them. Running an export is clerical; changing which
       ledger the books land in is not.
     </div>
 
     <div v-if="data" class="flex flex-col gap-5">
       <section v-for="group in GROUPS" :key="group.key"
-        class="rounded border border-outline-gray-2 p-4">
-        <h2 class="text-base font-semibold text-ink-gray-8">{{ group.title }}</h2>
+        class="rounded-4 border border-outline-gray-2 p-4">
+        <h2 class="text-base-semibold text-ink-gray-8">{{ group.title }}</h2>
         <p class="mt-0.5 text-p-sm text-ink-gray-5">{{ group.hint }}</p>
 
         <div v-if="group.key === 'include'" class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <label v-for="name in data.groups[group.key]" :key="name"
-            class="flex items-center gap-2 rounded border border-outline-gray-2 px-3 py-2 text-p-sm">
+            class="flex items-center gap-2 rounded-4 border border-outline-gray-2 px-3 py-2 text-p-sm">
             <input type="checkbox" :checked="!!values[name]" :disabled="!data.can_write"
-              class="rounded border-outline-gray-3 text-brand-600 focus:ring-brand-500"
+              class="rounded-4 border-outline-gray-3 text-brand-600 focus:ring-brand-500"
               @change="set(name, ($event.target as HTMLInputElement).checked ? 1 : 0)" />
             <span class="text-ink-gray-7">{{ data.fields[name].label }}</span>
           </label>

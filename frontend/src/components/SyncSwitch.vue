@@ -3,7 +3,7 @@
     type="button"
     role="switch"
     :aria-checked="on"
-    class="flex shrink-0 items-center gap-2 rounded px-1.5 py-1 transition hover:bg-surface-gray-2"
+    class="flex shrink-0 items-center gap-2 rounded-4 px-1.5 py-1 transition hover:bg-surface-gray-2"
     :title="title"
     :disabled="busy"
     @click="toggle"
@@ -18,7 +18,7 @@
       />
     </span>
     <span class="hidden whitespace-nowrap text-p-sm lg:inline"
-      :class="on ? 'text-ink-gray-7' : 'font-medium text-ink-amber-4'">
+      :class="on ? 'text-ink-gray-7' : 'font-medium text-ink-amber-8'">
       {{ on ? 'Sync on' : 'Sync off' }}
     </span>
   </button>

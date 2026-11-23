@@ -2,10 +2,10 @@
   <div>
     <div
       v-if="!quiet"
-      class="rounded border p-3 text-p-sm"
+      class="rounded-4 border p-3 text-p-sm"
       :class="blocking
-        ? 'border-outline-red-2 bg-surface-red-1 text-ink-red-4'
-        : 'border-outline-amber-2 bg-surface-amber-1 text-ink-amber-4'"
+        ? 'border-outline-red-3 bg-surface-red-1 text-ink-red-8'
+        : 'border-outline-amber-3 bg-surface-amber-1 text-ink-amber-8'"
     >
       <p class="font-medium">
         {{ blocking
@@ -23,12 +23,12 @@
     <!-- Stacked in a narrow column, tabular on a page. The table's minimum
          width clipped the subject and the detail inside the job panel - the
          half somebody actually needs - so `quiet` gets a list instead. -->
-    <ul v-if="quiet" class="divide-y divide-outline-gray-1 rounded border border-outline-gray-2">
+    <ul v-if="quiet" class="divide-y divide-outline-gray-1 rounded-4 border border-outline-gray-2">
       <li v-for="group in grouped" :key="group.key" class="px-3 py-2">
         <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <Badge :theme="SEVERITY[group.severity]?.theme || 'gray'" variant="subtle"
             :label="SEVERITY[group.severity]?.label || group.severity" />
-          <span class="text-p-sm font-medium text-ink-gray-8">
+          <span class="text-p-sm-medium text-ink-gray-8">
             {{ CHECK_LABELS[group.check] || group.check }}
           </span>
           <span v-if="group.count > 1" class="kx-nums text-p-xs text-ink-gray-5">
@@ -45,7 +45,7 @@
       </li>
     </ul>
 
-    <div v-else class="mt-3 overflow-x-auto rounded border border-outline-gray-2">
+    <div v-else class="mt-3 overflow-x-auto rounded-4 border border-outline-gray-2">
       <table class="w-full min-w-[48rem] text-p-sm">
         <thead class="bg-surface-gray-1 text-left text-p-xs uppercase tracking-wide text-ink-gray-5">
           <tr>

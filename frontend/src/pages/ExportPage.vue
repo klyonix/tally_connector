@@ -14,7 +14,7 @@
     <ol class="mb-5 flex flex-wrap items-center gap-x-1 gap-y-2 text-p-sm">
       <li v-for="(step, i) in steps" :key="step.key" class="flex items-center gap-1">
         <span
-          class="flex items-center gap-1.5 rounded px-2 py-1"
+          class="flex items-center gap-1.5 rounded-4 px-2 py-1"
           :class="step.done
             ? 'bg-brand-50 font-medium text-brand-700'
             : (step.current ? 'bg-surface-gray-2 font-medium text-ink-gray-8' : 'text-ink-gray-5')"
@@ -30,7 +30,7 @@
     <!-- No company control here. It is set once for the whole application in the
          sidebar, and a second editor for one value is how two screens come to
          disagree about which books are open. -->
-    <section class="mb-5 rounded border border-outline-gray-2 p-4">
+    <section class="mb-5 rounded-4 border border-outline-gray-2 p-4">
       <div class="flex flex-wrap items-end gap-3">
         <div class="w-[9.5rem]">
           <FormControl type="date" label="From" v-model="app.fromDate" />
@@ -68,7 +68,7 @@
 
     <section v-if="report" class="mb-5">
       <div class="mb-2 flex items-center justify-between gap-3">
-        <h2 class="text-base font-semibold text-ink-gray-8">Validation result</h2>
+        <h2 class="text-base-semibold text-ink-gray-8">Validation result</h2>
         <Button size="sm" variant="ghost" @click="report = null">Dismiss</Button>
       </div>
       <FindingsTable
@@ -78,7 +78,7 @@
       />
       <div
         v-else
-        class="rounded border border-outline-green-2 bg-surface-green-1 p-3 text-p-sm text-ink-green-4"
+        class="rounded-4 border border-outline-green-3 bg-surface-green-1 p-3 text-p-sm text-ink-green-8"
       >
         <p class="font-medium">Nothing found.</p>
         <p class="mt-0.5 text-p-xs">
@@ -90,7 +90,7 @@
 
     <section class="mb-5">
       <div class="mb-2 flex items-baseline justify-between gap-3">
-        <h2 class="text-base font-semibold text-ink-gray-8">1 · Masters</h2>
+        <h2 class="text-base-semibold text-ink-gray-8">1 · Masters</h2>
         <p class="text-p-xs text-ink-gray-5">These must exist in Tally before any voucher lands.</p>
       </div>
       <AreaTable :rows="masters" :busy="busy" @push="run($event, true)" @download="run($event, false)" />
@@ -98,7 +98,7 @@
 
     <section>
       <div class="mb-2 flex items-baseline justify-between gap-3">
-        <h2 class="text-base font-semibold text-ink-gray-8">2 · Transactions</h2>
+        <h2 class="text-base-semibold text-ink-gray-8">2 · Transactions</h2>
         <p class="text-p-xs text-ink-gray-5">Vouchers for the range above.</p>
       </div>
       <AreaTable

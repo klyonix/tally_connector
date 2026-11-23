@@ -13,32 +13,32 @@
 
     <div v-if="area">
       <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded border border-outline-gray-2 p-3">
+        <div class="rounded-4 border border-outline-gray-2 p-3">
           <p class="text-p-xs uppercase tracking-wide text-ink-gray-5">Records</p>
-          <p class="kx-nums mt-1 text-lg font-semibold text-ink-gray-9">
+          <p class="kx-nums mt-1 text-lg-semibold text-ink-gray-9">
             {{ formatNumber(area.count) }}
           </p>
           <p class="mt-0.5 text-p-xs text-ink-gray-5">
             {{ area.dated ? `${app.fromDate} to ${app.toDate}` : 'Not affected by the date range' }}
           </p>
         </div>
-        <div class="rounded border border-outline-gray-2 p-3">
+        <div class="rounded-4 border border-outline-gray-2 p-3">
           <p class="text-p-xs uppercase tracking-wide text-ink-gray-5">Last export</p>
-          <p class="mt-1 text-base font-semibold text-ink-gray-9">
+          <p class="mt-1 text-base-semibold text-ink-gray-9">
             {{ area.last ? formatWhen(area.last.at) : 'Never' }}
           </p>
           <p v-if="area.last" class="mt-0.5 text-p-xs text-ink-gray-5">
             {{ formatNumber(area.last.records) }} records
           </p>
         </div>
-        <div class="rounded border border-outline-gray-2 p-3">
+        <div class="rounded-4 border border-outline-gray-2 p-3">
           <p class="text-p-xs uppercase tracking-wide text-ink-gray-5">Status</p>
           <div class="mt-1.5">
             <StatusBadge v-if="area.last" :status="area.last.status" />
             <span v-else class="text-base text-ink-gray-6">Not exported</span>
           </div>
         </div>
-        <div class="rounded border border-outline-gray-2 p-3">
+        <div class="rounded-4 border border-outline-gray-2 p-3">
           <p class="text-p-xs uppercase tracking-wide text-ink-gray-5">In full export</p>
           <div class="mt-1.5">
             <Badge :theme="area.included ? 'green' : 'gray'" variant="subtle"
@@ -51,7 +51,7 @@
       </section>
 
       <section v-if="area.group === 'masters'"
-        class="mt-5 rounded border border-outline-gray-2 p-4 text-p-sm text-ink-gray-6">
+        class="mt-5 rounded-4 border border-outline-gray-2 p-4 text-p-sm text-ink-gray-6">
         <p class="font-medium text-ink-gray-8">Masters go first</p>
         <p class="mt-1">
           Tally refuses a voucher that names a ledger, unit or stock item it has not yet seen, and it
@@ -60,7 +60,7 @@
         </p>
       </section>
 
-      <section v-else class="mt-5 rounded border border-outline-gray-2 p-4 text-p-sm text-ink-gray-6">
+      <section v-else class="mt-5 rounded-4 border border-outline-gray-2 p-4 text-p-sm text-ink-gray-6">
         <p class="font-medium text-ink-gray-8">Send the masters first</p>
         <p class="mt-1">
           These vouchers reference ledgers, units and stock items. If Tally does not already hold

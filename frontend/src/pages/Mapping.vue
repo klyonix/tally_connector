@@ -15,9 +15,9 @@
          because a second editor for the same field is how two screens come to
          disagree about which ledger the books land in. -->
     <section v-for="table in tables" :key="table.title" class="mb-5">
-      <h2 class="mb-1 text-base font-semibold text-ink-gray-8">{{ table.title }}</h2>
+      <h2 class="mb-1 text-base-semibold text-ink-gray-8">{{ table.title }}</h2>
       <p class="mb-2 text-p-sm text-ink-gray-5">{{ table.hint }}</p>
-      <div class="overflow-x-auto rounded border border-outline-gray-2">
+      <div class="overflow-x-auto rounded-4 border border-outline-gray-2">
         <table class="w-full min-w-[36rem] text-p-sm">
           <thead class="bg-surface-gray-1 text-left text-p-xs uppercase tracking-wide text-ink-gray-5">
             <tr>
@@ -47,8 +47,8 @@
       </div>
     </section>
 
-    <section class="rounded border border-outline-gray-2 p-4">
-      <h2 class="text-base font-semibold text-ink-gray-8">Tax ledgers</h2>
+    <section class="rounded-4 border border-outline-gray-2 p-4">
+      <h2 class="text-base-semibold text-ink-gray-8">Tax ledgers</h2>
       <p class="mt-0.5 text-p-sm text-ink-gray-6">
         GST ledgers are not mapped by name. They are read from ERPNext's own GST account settings and
         placed under <b>Duties &amp; Taxes</b> with a duty head, because that is the only place Tally

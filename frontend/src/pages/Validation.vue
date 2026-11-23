@@ -12,7 +12,7 @@
 
     <ErrorMessage v-if="error" :message="error" class="mb-4" />
 
-    <section class="mb-4 rounded border border-outline-gray-2 p-4">
+    <section class="mb-4 rounded-4 border border-outline-gray-2 p-4">
       <div class="flex flex-wrap items-end gap-3">
         <div class="w-[9.5rem]">
           <FormControl type="date" label="From" v-model="app.fromDate" />
@@ -31,7 +31,7 @@
     <!-- What the destination Tally is, where anybody has asked it. Two of the
          checks below need it, and they are skipped rather than guessed when
          Tally is not switched on. -->
-    <section v-if="target" class="mb-4 rounded border border-outline-gray-2 p-4">
+    <section v-if="target" class="mb-4 rounded-4 border border-outline-gray-2 p-4">
       <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-p-sm">
         <div>
           <p class="text-p-xs uppercase tracking-wide text-ink-gray-5">Destination</p>
@@ -39,7 +39,7 @@
         </div>
         <div>
           <p class="text-p-xs uppercase tracking-wide text-ink-gray-5">Reachable</p>
-          <p class="font-medium" :class="target.reachable ? 'text-ink-green-3' : 'text-ink-gray-6'">
+          <p class="font-medium" :class="target.reachable ? 'text-ink-green-6' : 'text-ink-gray-6'">
             {{ target.reachable ? 'Yes' : 'Not answering' }}
           </p>
         </div>
@@ -56,9 +56,9 @@
 
     <section v-if="report">
       <div class="mb-3 grid gap-3 sm:grid-cols-4">
-        <div v-for="tile in tiles" :key="tile.label" class="rounded border border-outline-gray-2 p-3">
+        <div v-for="tile in tiles" :key="tile.label" class="rounded-4 border border-outline-gray-2 p-3">
           <p class="text-p-xs uppercase tracking-wide text-ink-gray-5">{{ tile.label }}</p>
-          <p class="kx-nums mt-1 text-lg font-semibold" :class="tile.tone">{{ tile.value }}</p>
+          <p class="kx-nums mt-1 text-lg-semibold" :class="tile.tone">{{ tile.value }}</p>
         </div>
       </div>
 
@@ -69,7 +69,7 @@
       />
       <div
         v-else
-        class="rounded border border-outline-green-2 bg-surface-green-1 p-4 text-p-sm text-ink-green-4"
+        class="rounded-4 border border-outline-green-3 bg-surface-green-1 p-4 text-p-sm text-ink-green-8"
       >
         <p class="font-medium">Nothing found.</p>
         <p class="mt-1">
@@ -80,13 +80,13 @@
       </div>
 
       <div v-if="report.unresolved_ledgers?.length" class="mt-4">
-        <h2 class="mb-2 text-base font-semibold text-ink-gray-8">Ledgers no master creates</h2>
+        <h2 class="mb-2 text-base-semibold text-ink-gray-8">Ledgers no master creates</h2>
         <p class="mb-2 text-p-sm text-ink-gray-6">
           Every one of these is a line Tally refuses. Zero is the only acceptable number.
         </p>
         <ul class="flex flex-wrap gap-1.5">
           <li v-for="name in report.unresolved_ledgers" :key="name"
-            class="rounded border border-outline-red-2 bg-surface-red-1 px-2 py-1 font-mono text-p-xs text-ink-red-4">
+            class="rounded-4 border border-outline-red-3 bg-surface-red-1 px-2 py-1 font-mono text-p-xs text-ink-red-8">
             {{ name }}
           </li>
         </ul>
@@ -130,11 +130,11 @@ const tiles = computed(() => {
   const counts = v.counts || {}
   return [
     { label: 'Stops the import', value: formatNumber(counts.aborts ?? countBy('aborts')),
-      tone: (counts.aborts ?? countBy('aborts')) ? 'text-ink-red-3' : 'text-ink-gray-7' },
+      tone: (counts.aborts ?? countBy('aborts')) ? 'text-ink-red-6' : 'text-ink-gray-7' },
     { label: 'Lines refused', value: formatNumber(counts.rejects ?? countBy('rejects')),
       tone: (counts.rejects ?? countBy('rejects')) ? 'text-ink-orange-3' : 'text-ink-gray-7' },
     { label: 'Books wrong', value: formatNumber(counts.wrong ?? countBy('wrong')),
-      tone: (counts.wrong ?? countBy('wrong')) ? 'text-ink-amber-3' : 'text-ink-gray-7' },
+      tone: (counts.wrong ?? countBy('wrong')) ? 'text-ink-amber-6' : 'text-ink-gray-7' },
     { label: 'Vouchers checked', value: formatNumber(report.value?.counts?.vouchers),
       tone: 'text-ink-gray-7' },
   ]

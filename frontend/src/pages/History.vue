@@ -16,12 +16,12 @@
         <FormControl type="select" label="Status" v-model="statusFilter" :options="STATUSES" />
       </div>
       <label class="flex items-center gap-2 pb-1.5 text-p-sm text-ink-gray-7">
-        <input type="checkbox" v-model="thisCompanyOnly" class="rounded border-outline-gray-3" />
+        <input type="checkbox" v-model="thisCompanyOnly" class="rounded-4 border-outline-gray-3" />
         Only {{ app.company || 'this company' }}
       </label>
     </div>
 
-    <div v-if="rows.length" class="overflow-x-auto rounded border border-outline-gray-2">
+    <div v-if="rows.length" class="overflow-x-auto rounded-4 border border-outline-gray-2">
       <table class="w-full min-w-[56rem] text-p-sm">
         <thead class="bg-surface-gray-1 text-left text-p-xs uppercase tracking-wide text-ink-gray-5">
           <tr>
@@ -56,7 +56,7 @@
               {{ formatNumber(row.records) }}
             </td>
             <td class="kx-nums px-3 py-2 text-right"
-              :class="row.failed ? 'font-medium text-ink-red-3' : 'text-ink-gray-5'">
+              :class="row.failed ? 'font-medium text-ink-red-6' : 'text-ink-gray-5'">
               {{ formatNumber(row.failed) }}
             </td>
             <td class="kx-nums whitespace-nowrap px-3 py-2 text-right text-ink-gray-6">

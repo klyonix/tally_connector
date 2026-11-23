@@ -5,13 +5,12 @@
     never opens - which is exactly what happened, silently, until it was
     clicked. Popover is the component for arbitrary content.
   -->
-  <Popover placement="bottom-end">
-    <template #target="{ togglePopover, isOpen }">
+  <Popover side="bottom" align="end" :offset="8" bare @open="load">
+    <template #trigger>
       <button
         type="button"
-        class="relative flex shrink-0 items-center rounded p-1.5 transition hover:bg-surface-gray-2"
+        class="relative flex shrink-0 items-center rounded-4 p-1.5 transition hover:bg-surface-gray-2"
         :aria-label="unread ? `${unread} things need attention` : 'Notifications'"
-        @click="onOpen(isOpen); togglePopover()"
       >
         <LucideBell class="size-4 text-ink-gray-6" />
         <!-- Only failures, warnings and stalls light it. A bell that rings for
@@ -22,10 +21,10 @@
         >{{ unread > 9 ? '9+' : unread }}</span>
       </button>
     </template>
-    <template #body="{ close }">
-      <div class="mt-2 w-[22rem] max-w-[90vw] rounded-lg border border-outline-gray-2 bg-surface-white p-1 shadow-2xl">
+    <template #default="{ close }">
+      <div class="w-[22rem] max-w-[90vw] rounded-6 border border-outline-gray-2 bg-surface-base p-1 shadow-2xl">
         <div class="flex items-center justify-between px-2 py-1.5">
-          <span class="text-p-xs font-medium uppercase tracking-wide text-ink-gray-5">
+          <span class="text-p-xs-medium uppercase tracking-wide text-ink-gray-5">
             Notifications
           </span>
           <button
@@ -42,13 +41,13 @@
           <li v-for="item in items" :key="item.kind + item.name">
             <button
               type="button"
-              class="flex w-full items-start gap-2.5 rounded px-2 py-2 text-left transition hover:bg-surface-gray-2"
+              class="flex w-full items-start gap-2.5 rounded-4 px-2 py-2 text-left transition hover:bg-surface-gray-2"
               @click="close(); openJob(item)"
             >
               <span class="mt-1.5 size-1.5 shrink-0 rounded-full" :class="dot(item.tone)" />
               <span class="min-w-0 flex-1">
                 <span class="flex items-baseline justify-between gap-2">
-                  <span class="truncate text-p-sm font-medium text-ink-gray-8">
+                  <span class="truncate text-p-sm-medium text-ink-gray-8">
                     {{ item.title }}
                     <span class="font-normal text-ink-gray-5">
                       · {{ item.kind === 'export' ? 'export' : 'import' }}
@@ -116,11 +115,6 @@ function markAllRead() {
     /* nothing to remember it with; the count simply stays */
   }
   unread.value = 0
-}
-
-/** Refresh as it is opened, not as it is closed. */
-function onOpen(isOpen: boolean) {
-  if (!isOpen) load()
 }
 
 function dot(tone: string) {

@@ -14,13 +14,13 @@ export default defineConfig({
       lucideIcons: true,
       jinjaBootData: true,
       buildConfig: {
-        outDir: path.resolve(__dirname, `../${getAppName()}/public/frontend`),
-        indexHtmlPath: path.resolve(__dirname, `../${getAppName()}/www/${getAppName()}.html`),
+        outDir: path.resolve(import.meta.dirname, `../${getAppName()}/public/frontend`),
+        indexHtmlPath: path.resolve(import.meta.dirname, `../${getAppName()}/www/${getAppName()}.html`),
       },
     }),
   ],
   build: {
-    outDir: path.resolve(__dirname, `../${getAppName()}/public/frontend`),
+    outDir: path.resolve(import.meta.dirname, `../${getAppName()}/public/frontend`),
     emptyOutDir: true,
   },
   server: {
@@ -28,18 +28,12 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
-      'tailwind.config.js': path.resolve(__dirname, 'tailwind.config.js'),
+      '@': path.resolve(import.meta.dirname, 'src'),
+      'tailwind.config.js': path.resolve(import.meta.dirname, 'tailwind.config.js'),
     },
   },
   optimizeDeps: {
-    include: [
-      'frappe-ui > feather-icons',
-      'showdown',
-      'tailwind.config.js',
-      'engine.io-client',
-      'highlight.js/lib/core',
-    ],
+    include: ['tailwind.config.js'],
   },
 })
 
@@ -50,5 +44,5 @@ function getAppName() {
   //   - <app_name>
   //     - frontend
   //       - vite.config.js
-  return path.basename(path.resolve(__dirname, '..'))
+  return path.basename(path.resolve(import.meta.dirname, '..'))
 }
