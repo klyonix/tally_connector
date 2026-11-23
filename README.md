@@ -335,6 +335,12 @@ has already been written.
 Tally-specific facts discovered along the way are recorded in
 `tally/render.py::ASSUMPTIONS` rather than left for the next person to rediscover.
 
+## Contributing
+
+Changes reach `develop` through pull requests, one feature or fix each, with
+conventional commit titles. See [CONTRIBUTING](.github/CONTRIBUTING.md), and
+[SECURITY](SECURITY.md) for reporting a vulnerability privately.
+
 ---
 
 [AGPL-3.0](LICENSE) · [KlyONIX Tech](https://klyonix.com)

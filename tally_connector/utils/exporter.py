@@ -411,13 +411,11 @@ def write_full_export(from_date, to_date, company, masters_path, vouchers_path, 
 	if fmt == EXCEL:
 		from tally_connector.tally import excel
 
-		with open(
-			vouchers_path, "wb"
-		) as fh:  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		# nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		with open(vouchers_path, "wb") as fh:
 			fh.write(excel.render_vouchers(export.vouchers))
-		with open(
-			masters_path, "wb"
-		) as fh:  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		# nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		with open(masters_path, "wb") as fh:
 			fh.write(excel.render_masters(export.masters))
 	else:
 		# The destination is asked once, here, and both files follow from the
@@ -426,17 +424,15 @@ def write_full_export(from_date, to_date, company, masters_path, vouchers_path, 
 		# back to sending everything, which is what this always did.
 		resolution = destination_resolution(export.masters)
 		vouchers, skipped = unsent_vouchers(export.vouchers, company, export.company)
-		with open(
-			vouchers_path, "w", encoding="utf-8"
-		) as fh:  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		# nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		with open(vouchers_path, "w", encoding="utf-8") as fh:
 			fh.write(
 				render_vouchers(
 					export.company, vouchers, action, send_guid(settings), ledgers_refusing_cost_centres()
 				)
 			)
-		with open(
-			masters_path, "w", encoding="utf-8"
-		) as fh:  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		# nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		with open(masters_path, "w", encoding="utf-8") as fh:
 			fh.write(render_masters(export.company, export.masters, duplicates, resolution))
 		counts = _counts(export)
 		counts["vouchers_already_sent"] = len(skipped)

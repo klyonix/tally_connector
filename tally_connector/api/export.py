@@ -66,6 +66,13 @@ EXPORT_ROLES = ("System Manager", "Accounts Manager", "Accounts User")
 ADMIN_ROLES = ("System Manager", "Accounts Manager")
 
 
+def _read_text(path: str) -> str:
+	"""A file this module wrote itself, as text."""
+	# nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+	with open(path, encoding="utf-8") as fh:
+		return fh.read()
+
+
 def _require(roles):
 	"""Refuse a caller who holds none of `roles`."""
 	if frappe.session.user == "Administrator":
@@ -108,6 +115,8 @@ def _resolve_company(company=None):
 		allowed = frappe.get_list("Company", pluck="name", limit=2)
 		if len(allowed) == 1:
 			company = allowed[0]
+		elif not allowed:
+			frappe.throw(_("There is no company to export. Set one up in ERPNext first."))
 	if not company:
 		frappe.throw(_("Choose a company to export. This site has more than one."))
 	if not frappe.db.exists("Company", company):
@@ -456,9 +465,8 @@ def _attach_xml(log_name, filename, path):
 	gateway timeout before it is a download - which is exactly what a year of
 	invoices produced.
 	"""
-	with open(
-		path, "rb"
-	) as fh:  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+	# nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+	with open(path, "rb") as fh:
 		content = fh.read()
 	file_doc = frappe.get_doc(
 		{
@@ -598,12 +606,8 @@ def run_full_export(log_name, from_date, to_date, company, push=False, export_fo
 				else:
 					verdict = validate(
 						read_export(
-							open(
-								masters_path, encoding="utf-8"
-							).read(),  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
-							open(
-								vouchers_path, encoding="utf-8"
-							).read(),  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+							_read_text(masters_path),
+							_read_text(vouchers_path),
 						)
 					)
 				blocking = [
@@ -674,9 +678,7 @@ def run_full_export(log_name, from_date, to_date, company, push=False, export_fo
 				# Masters first, and stop if they fail: vouchers sent into a
 				# company without the ledgers are refused line by line.
 				reporter.at("Sending to Tally")
-				masters_xml = (
-					open(masters_path, encoding="utf-8").read()
-				)  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+				masters_xml = _read_text(masters_path)
 				master_result = push_to_tally(masters_xml, log_name)
 				result["tally_masters"] = master_result
 				del masters_xml
@@ -701,9 +703,7 @@ def run_full_export(log_name, from_date, to_date, company, push=False, export_fo
 					)
 					frappe.db.commit()  # nosemgrep: frappe-manual-commit - the polling screen reads this log
 					return result
-				vouchers_xml = (
-					open(vouchers_path, encoding="utf-8").read()
-				)  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+				vouchers_xml = _read_text(vouchers_path)
 				voucher_result = push_to_tally(vouchers_xml, log_name)
 				result["tally_vouchers"] = voucher_result
 				del vouchers_xml
@@ -1024,12 +1024,8 @@ def preflight(
 		masters_path = os.path.join(tmp, "m.xml")
 		vouchers_path = os.path.join(tmp, "v.xml")
 		counts = write_full_export(from_date, to_date, company, masters_path, vouchers_path)
-		masters_xml = open(
-			masters_path, encoding="utf-8"
-		).read()  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
-		vouchers_xml = open(
-			vouchers_path, encoding="utf-8"
-		).read()  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		masters_xml = _read_text(masters_path)
+		vouchers_xml = _read_text(vouchers_path)
 
 	report = validate(read_export(masters_xml, vouchers_xml), target_company(ask_tally))
 

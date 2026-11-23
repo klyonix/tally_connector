@@ -8,6 +8,8 @@ app_version = "1.0.0"
 
 required_apps = ["erpnext"]
 
+before_tests = "tally_connector.tests.site.before_tests"
+
 # ──────────────────────────────────────────────
 # Desk Home Screen
 # ──────────────────────────────────────────────

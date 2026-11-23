@@ -138,10 +138,15 @@ class TestNameMatchingIgnoresCaseAndPunctuation(UnitTestCase):
 		self.assertEqual({f.severity for f in findings}, {ABORTS})
 
 	def test_the_company_suffix_keeps_such_a_ledger_distinct(self):
-		from tally_connector.utils.ledgers import ledger_name
+		from unittest.mock import patch
 
-		self.assertEqual(ledger_name("Stock In Hand - KTC", "KTC"), "Stock In Hand - KTC")
-		self.assertEqual(ledger_name("Bad Debts - KTC", "KTC"), "Bad Debts")
+		from tally_connector.utils import ledgers
+
+		# The abbreviation is the company's, so it is given rather than read
+		# from whatever companies the test site holds.
+		with patch.object(ledgers, "company_abbr", return_value="DT"):
+			self.assertEqual(ledgers.ledger_name("Stock In Hand - DT", "Demo Traders"), "Stock In Hand - DT")
+			self.assertEqual(ledgers.ledger_name("Bad Debts - DT", "Demo Traders"), "Bad Debts")
 
 
 class TestAVoucherNeverNamesAnUncreatedLedger(UnitTestCase):
