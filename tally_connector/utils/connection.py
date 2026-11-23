@@ -664,6 +664,20 @@ def push_masters(
 			summary["success"] = False
 			summary["unknown"] = bool(result.get("unknown"))
 			summary["errors"] = result.get("errors") or []
+
+			# Tally said which masters it refused, so there is nothing to ask
+			# it one at a time: each refusal is listed by name with its words.
+			named = _refused_masters(chunk, kind, result.get("records"))
+			if named is not None:
+				summary["sent"] += carried - len(named)
+				summary["created"] += result.get("created", 0)
+				summary["altered"] += result.get("altered", 0)
+				summary["refused"].extend(named)
+				if not name_refusals:
+					summary["stopped_at"] = number
+					return summary
+				continue
+
 			# Bisecting is for a refusal, never for an answer that could not
 			# be read. An `unknown` means Tally fell over or said something
 			# unreadable, and sending it another 250 requests one at a time is
@@ -698,6 +712,33 @@ def push_masters(
 				)
 
 	return summary
+
+
+def _refused_masters(chunk, kind, records):
+	"""The masters Tally refused, from its result per record, or None.
+
+	None unless Tally accounted for every master in the batch it was sent.
+	"""
+	if not records:
+		return None
+	from tally_connector.tally.results import landed, normalise
+
+	by_name = {normalise(getattr(row, "name", "")): row for row in chunk}
+	refused = []
+	for key, result in records.items():
+		if landed(result):
+			continue
+		row = by_name.get(key)
+		refused.append(
+			{
+				"kind": kind,
+				"name": getattr(row, "name", "") if row else result.get("key", ""),
+				"parent": getattr(row, "parent", "") if row else "",
+				"unknown": False,
+				"error": (result.get("error") or "")[:400],
+			}
+		)
+	return refused
 
 
 def _masters_in(xml) -> int:
@@ -802,65 +843,87 @@ def push_vouchers(
 		)
 		if tick:
 			tick(len(chunk))
-		if result.get("success"):
-			summary["sent"] += len(chunk)
-			summary["created"] += result.get("created", 0)
-			summary["altered"] += result.get("altered", 0)
-			_record_batch(chunk, erpnext_company, company, result)
-			continue
+		told = _told(chunk, result)
+		if told is not None:
+			# Tally said what became of every voucher, so nothing has to be
+			# guessed or asked: each is recorded as what Tally made of it.
+			took, refused = told
+			records = result["records"]
+			if took:
+				_record_each(took, records, erpnext_company, company)
+				summary["sent"] += len(took)
+				summary["created"] += result.get("created", 0)
+				summary["altered"] += result.get("altered", 0)
+			if not refused:
+				continue
+			summary["success"] = False
+			summary["errors"] = result.get("errors") or []
+			if not keep_going:
+				_record_each(refused, records, erpnext_company, company)
+				summary["refused"].extend(_refusal(v, number, records) for v in refused)
+				summary["stopped_at"] = number
+				break
+		else:
+			records = None
+			if result.get("success"):
+				summary["sent"] += len(chunk)
+				summary["created"] += result.get("created", 0)
+				summary["altered"] += result.get("altered", 0)
+				_record_batch(chunk, erpnext_company, company, result)
+				continue
 
-		if result.get("unknown"):
-			# The batch was delivered and the answer lost, which is what a
-			# Tally slow to finish a large import looks like from here. Ask it
-			# which of the batch it now holds: those are recorded as in Tally,
-			# and the rest stay unknown - never resent automatically, because
-			# Tally may still be importing them. When all of it is there, Tally
-			# is answering again and the run carries on.
-			landed, _absent = _split_by_what_tally_holds(chunk, company, period)
-			landed = landed or []
+			if result.get("unknown"):
+				# The batch was delivered and the answer lost, which is what a
+				# Tally slow to finish a large import looks like from here. Ask it
+				# which of the batch it now holds: those are recorded as in Tally,
+				# and the rest stay unknown - never resent automatically, because
+				# Tally may still be importing them. When all of it is there, Tally
+				# is answering again and the run carries on.
+				landed, _absent = _split_by_what_tally_holds(chunk, company, period)
+				landed = landed or []
+				if landed:
+					summary["sent"] += len(landed)
+					summary["created"] += len(landed)
+					summary["read_back"] += len(landed)
+					_record_batch(landed, erpnext_company, company, _landed(len(landed)))
+				if len(landed) == len(chunk):
+					summary["batches"][-1]["read_back"] = True
+					continue
+				held = {id(v) for v in landed}
+				chunk = [v for v in chunk if id(v) not in held]
+
+			summary["success"] = False
+			summary["unknown"] = bool(result.get("unknown"))
+			summary["errors"] = result.get("errors") or []
+
+			# An answer that could not be read always stops the run. Tally may
+			# have fallen over, and carrying on into one that is half dead is how
+			# the worst of this went wrong before.
+			if result.get("unknown") or not keep_going or not period:
+				summary["stopped_at"] = number
+				_record_batch(chunk, erpnext_company, company, result)
+				break
+
+			# Tally aborts a file at the record it refused and keeps what it read
+			# before that, so part of this batch is in the books. Which part is
+			# not a guess to make: ask Tally, record what landed as landed and the
+			# rest as refused, and carry on with the batches after it. Without the
+			# asking this cannot continue at all, because a retry would post the
+			# ones that did land a second time.
+			landed, refused = _split_by_what_tally_holds(chunk, company, period)
+			if landed is None:
+				summary["stopped_at"] = number
+				_record_batch(chunk, erpnext_company, company, result)
+				break
 			if landed:
 				summary["sent"] += len(landed)
 				summary["created"] += len(landed)
-				summary["read_back"] += len(landed)
-				_record_batch(landed, erpnext_company, company, _landed(len(landed)))
-			if len(landed) == len(chunk):
-				summary["batches"][-1]["read_back"] = True
-				continue
-			held = {id(v) for v in landed}
-			chunk = [v for v in chunk if id(v) not in held]
-
-		summary["success"] = False
-		summary["unknown"] = bool(result.get("unknown"))
-		summary["errors"] = result.get("errors") or []
-
-		# An answer that could not be read always stops the run. Tally may
-		# have fallen over, and carrying on into one that is half dead is how
-		# the worst of this went wrong before.
-		if result.get("unknown") or not keep_going or not period:
-			summary["stopped_at"] = number
-			_record_batch(chunk, erpnext_company, company, result)
-			break
-
-		# Tally aborts a file at the record it refused and keeps what it read
-		# before that, so part of this batch is in the books. Which part is
-		# not a guess to make: ask Tally, record what landed as landed and the
-		# rest as refused, and carry on with the batches after it. Without the
-		# asking this cannot continue at all, because a retry would post the
-		# ones that did land a second time.
-		landed, refused = _split_by_what_tally_holds(chunk, company, period)
-		if landed is None:
-			summary["stopped_at"] = number
-			_record_batch(chunk, erpnext_company, company, result)
-			break
-		if landed:
-			summary["sent"] += len(landed)
-			summary["created"] += len(landed)
-			_record_batch(
-				landed,
-				erpnext_company,
-				company,
-				_landed(len(landed)),
-			)
+				_record_batch(
+					landed,
+					erpnext_company,
+					company,
+					_landed(len(landed)),
+				)
 		if refused and round_to_tally:
 			# Tally computes the invoice's value itself and refuses a party
 			# line that does not match, without ever saying what it wanted.
@@ -905,18 +968,29 @@ def push_vouchers(
 			refused = still
 
 		if refused:
-			_record_batch(refused, erpnext_company, company, result)
-			summary["refused"].extend(
-				{
-					"number": getattr(v, "number", ""),
-					"kind": getattr(v, "kind", ""),
-					"document": getattr(v, "remote_id", "") or getattr(v, "number", ""),
-					"batch": number,
-				}
-				for v in refused
-			)
+			if records:
+				_record_each(refused, records, erpnext_company, company)
+			else:
+				_record_batch(refused, erpnext_company, company, result)
+			summary["refused"].extend(_refusal(v, number, records) for v in refused)
 
 	return summary
+
+
+def _refusal(voucher, batch, records=None):
+	"""A refused voucher as the summary lists it, with Tally's words when it gave them."""
+	from tally_connector.tally.results import normalise
+
+	entry = {
+		"number": getattr(voucher, "number", ""),
+		"kind": getattr(voucher, "kind", ""),
+		"document": getattr(voucher, "remote_id", "") or getattr(voucher, "number", ""),
+		"batch": batch,
+	}
+	row = (records or {}).get(normalise(entry["number"]))
+	if row and row.get("error"):
+		entry["error"] = row["error"]
+	return entry
 
 
 def _landed(count):
@@ -1059,6 +1133,25 @@ def _busy_words(response) -> str:
 	return " ".join(text.split())[:300]
 
 
+def _from_records(records):
+	"""Tally's answer, read from its result per record instead of its totals."""
+	from tally_connector.tally import results as per_record_results
+
+	rows = list(records.values())
+	took = [r for r in rows if per_record_results.landed(r)]
+	return {
+		"created": sum(1 for r in took if not per_record_results.altered(r)),
+		"altered": sum(1 for r in took if per_record_results.altered(r)),
+		"ignored": 0,
+		"error_count": len(rows) - len(took),
+		"exceptions": 0,
+		"last_voucher_id": next((r["master_id"] for r in reversed(took) if r.get("master_id")), ""),
+		"parsed": True,
+		"errors": [f"{r['key']}: {r['error']}" for r in rows if not per_record_results.landed(r)],
+		"raw": "",
+	}
+
+
 def _deliver(conn, xml_string):
 	"""Send once, trying again only what cannot already be in Tally.
 
@@ -1077,7 +1170,48 @@ def _deliver(conn, xml_string):
 	return state, response, SEND_TRIES
 
 
-def push_to_tally(xml_string, export_log_name=None):
+def _per_record_enabled() -> bool:
+	try:
+		return bool(frappe.db.get_single_value("Tally Settings", "per_record_results"))
+	except Exception:
+		return False
+
+
+def _record_each(chunk, records, erpnext_company, tally_company):
+	"""Write each voucher's own outcome to the sync ledger, and never fail the push."""
+	if not erpnext_company:
+		return
+	try:
+		from tally_connector.utils.sync_ledger import record_results
+
+		record_results(chunk, records, erpnext_company, tally_company)
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit - what was sent is on record even if the process dies
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "Tally Connector: sync ledger write")
+
+
+def _told(chunk, result):
+	"""(landed, refused) as Tally said per record, or None when it did not say.
+
+	None unless Tally named every voucher in the batch: a voucher missing from
+	the results could be in Tally or not, and the probe exists for exactly that
+	question.
+	"""
+	from tally_connector.tally.results import landed, normalise
+
+	records = result.get("records")
+	if not records:
+		return None
+	took, refused = [], []
+	for voucher in chunk:
+		row = records.get(normalise(getattr(voucher, "number", "")))
+		if row is None:
+			return None
+		(took if landed(row) else refused).append(voucher)
+	return took, refused
+
+
+def push_to_tally(xml_string, export_log_name=None, per_record=None):
 	"""Send XML to Tally and record what Tally actually said about it.
 
 	Returns `success`, `reached`, `unknown`, `created`, `altered`, `ignored`,
@@ -1085,9 +1219,27 @@ def push_to_tally(xml_string, export_log_name=None):
 	wrote what was sent; `unknown` means the request reached Tally and its
 	answer could not be read, which is the one state that must never be retried
 	blindly, because Tally may hold the vouchers already.
+
+	With `per_record` (by default the `per_record_results` setting) the request
+	also asks Tally for a result per record, and `records` carries them keyed
+	by name or voucher number - but only when Tally's answer accounts for every
+	record sent. Otherwise `records` is None and the answer is read exactly as
+	it would have been without asking.
 	"""
+	from tally_connector.tally import results as per_record_results
+
+	if per_record is None:
+		per_record = _per_record_enabled()
+	sent = xml_string
+	if per_record:
+		try:
+			sent = per_record_results.with_results(xml_string)
+		except Exception:
+			frappe.log_error(frappe.get_traceback(), "Tally Connector: per-record results request")
+			sent, per_record = xml_string, False
+
 	conn = TallyConnector()
-	state, response, tries = _deliver(conn, xml_string)
+	state, response, tries = _deliver(conn, sent)
 	reached = state != NEVER_LEFT
 
 	unread = {
@@ -1101,6 +1253,7 @@ def push_to_tally(xml_string, export_log_name=None):
 		"errors": [response],
 		"raw": response,
 	}
+	records = None
 	if state == ANSWERED and _busy(response):
 		# Tally said it would not serve the request, which is a statement that
 		# nothing was imported - so this is a refusal that can be sent again,
@@ -1110,6 +1263,16 @@ def push_to_tally(xml_string, export_log_name=None):
 			f"It answered: {_busy_words(response)}"
 		)
 		parsed = dict(unread, parsed=True, errors=[declined])
+	elif state == ANSWERED and (
+		records := (
+			per_record_results.complete(
+				per_record_results.parse(response), per_record_results.keys_in(xml_string)
+			)
+			if per_record
+			else None
+		)
+	):
+		parsed = _from_records(records)
 	elif state == ANSWERED:
 		parsed = conn.parse_tally_response(response)
 	else:
@@ -1154,6 +1317,7 @@ def push_to_tally(xml_string, export_log_name=None):
 		"unknown": unknown,
 		"state": state,
 		"tries": tries,
+		"records": records,
 		"response": response,
 		"created": parsed.get("created", 0),
 		"altered": parsed.get("altered", 0),

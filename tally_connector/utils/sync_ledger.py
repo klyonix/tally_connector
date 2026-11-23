@@ -398,6 +398,39 @@ def record_sent(vouchers, erpnext_company, tally_company, result):
 	return {"outcome": outcome, "records": len(written)}
 
 
+def record_results(vouchers, records, erpnext_company, tally_company):
+	"""What Tally said about each voucher, one outcome per voucher.
+
+	`records` is Tally's result per record keyed by normalised voucher number,
+	as `push_to_tally` returns it. Unlike `record_sent`, which can only give a
+	whole file one answer, this records what each voucher became: created or
+	altered with the master id Tally gave it, or failed with Tally's own words.
+	"""
+	from tally_connector.tally.results import altered, landed, normalise
+
+	written = []
+	for voucher in vouchers:
+		name = getattr(voucher, "remote_id", None) or getattr(voucher, "number", "")
+		result = records.get(normalise(getattr(voucher, "number", "")))
+		if not name or result is None:
+			continue
+		row = note_attempt(
+			_doctype_for(voucher),
+			name,
+			erpnext_company,
+			tally_company,
+			voucher_type=getattr(voucher, "kind", ""),
+			voucher_number=getattr(voucher, "number", ""),
+			tally_guid=getattr(voucher, "tally_guid", ""),
+		)
+		if landed(result):
+			note_outcome(row, ALTERED if altered(result) else CREATED, "", result.get("master_id", ""))
+		else:
+			note_outcome(row, FAILED, result.get("error", ""))
+		written.append(row.name)
+	return {"records": len(written)}
+
+
 def stale(erpnext_company=None, tally_company=None):
 	"""Documents Tally still holds that ERPNext no longer stands behind.
 
