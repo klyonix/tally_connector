@@ -4,7 +4,7 @@ app_publisher = "KlyONIX Tech"
 app_description = "ERPNext to Tally Prime XML Export & Sync"
 app_email = "rk@klyonix.com"
 app_license = "AGPLv3"
-app_version = "1.0.0"
+app_version = "1.1.0"
 
 required_apps = ["erpnext"]
 
