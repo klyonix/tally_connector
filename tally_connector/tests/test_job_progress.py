@@ -137,7 +137,9 @@ class TestExportReportsWhereItIs(IntegrationTestCase):
 		self.assertEqual(row["progress"], 100)
 		self.assertEqual(row["processed"], self.reporter.processed)
 		self.assertFalse(row["running"])
-		self.assertEqual(len(row["files"]), 2)
+		# The two files and the package that carries them.
+		self.assertEqual(len(row["files"]), 3)
+		self.assertTrue(any(f["file_name"].endswith(".zip") for f in row["files"]))
 
 
 class TestTheReporterOnItsOwn(IntegrationTestCase):

@@ -72,7 +72,11 @@ class TestTallyIsNotThere(IntegrationTestCase):
 				filters={"attached_to_doctype": "Tally Export Log", "attached_to_name": log},
 				pluck="file_name",
 			)
-			self.assertEqual(len(files), 2, "the generated files were not kept")
+			self.assertEqual(len(files), 3, "the generated files were not kept")
+			self.assertTrue(
+				any(name.startswith(export_api.PACKAGE_PREFIX) and name.endswith(".zip") for name in files),
+				"the transfer package was not kept",
+			)
 			status = frappe.db.get_value("Tally Export Log", log, "status")
 			self.assertIn(status, ("Success", "Partial", "Failed"))
 		finally:
