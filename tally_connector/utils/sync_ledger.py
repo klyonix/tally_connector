@@ -105,11 +105,27 @@ def note_attempt(source_doctype, source_name, erpnext_company, tally_company,
     Written first on purpose. A row created only after a reply never exists for
     the request that got no reply, which is exactly the case that needs one.
     """
-    doc = record_for(source_doctype, source_name, erpnext_company, tally_company)
-    if not doc:
-        doc = frappe.new_doc(DOCTYPE)
-        doc.update(_filters(source_doctype, source_name, erpnext_company,
-                            tally_company))
+    key = (source_doctype, source_name, erpnext_company, tally_company)
+    doc = record_for(*key)
+    if doc:
+        return _attempt(doc, voucher_type, voucher_number, tally_guid, payload)
+
+    doc = frappe.new_doc(DOCTYPE)
+    doc.update(_filters(*key))
+    # Another push may insert this record between the read above and the
+    # insert below. The unique key refuses the second insert, and the record
+    # the other push wrote is the one to update.
+    frappe.db.savepoint("tally_sync_record")
+    try:
+        return _attempt(doc, voucher_type, voucher_number, tally_guid, payload)
+    except frappe.UniqueValidationError:
+        frappe.db.rollback(save_point="tally_sync_record")
+        frappe.clear_last_message()
+        return _attempt(record_for(*key), voucher_type, voucher_number,
+                        tally_guid, payload)
+
+
+def _attempt(doc, voucher_type, voucher_number, tally_guid, payload):
     doc.voucher_type = voucher_type or doc.voucher_type
     doc.voucher_number = voucher_number or doc.voucher_number
     doc.tally_guid = tally_guid or doc.tally_guid

@@ -37,7 +37,7 @@ GROUPS = {
 WRITABLE = tuple(f for fields in GROUPS.values() for f in fields)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def get():
     """The settings as the screen draws them, plus the options each Select has.
 
@@ -72,7 +72,7 @@ def get():
     }
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save(values):
     """Write the settings somebody changed, and only those.
 
@@ -98,7 +98,7 @@ def save(values):
     return get()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def set_sync_enabled(enabled):
     """The master switch, from the top bar.
 

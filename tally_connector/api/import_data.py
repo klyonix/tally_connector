@@ -233,7 +233,7 @@ def _write_import_log(import_type, status, counts, error=None):
 # The two doors onto the parser
 # ─────────────────────────────────────────────────────────────────────────────
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def process_tally_xml(xml_data):
     """Import a file the caller has in hand. Kept for a small file and for the
     Desk buttons; anything sizeable goes through `start_import` instead."""
@@ -245,21 +245,26 @@ def _read_file(file_url):
     """The bytes behind an uploaded File, as text.
 
     Read through the `File` document rather than by joining a path onto the
-    site directory: `get_content` resolves private and public files correctly
-    and refuses one this session may not read, and building the path by hand is
-    how a `file_url` from a caller becomes a way to read anything on disk.
+    site directory, and only after the File's own permission check:
+    `get_content` checks nothing, so without it any private file on the site
+    could be read by naming its URL. A `file_url` that is not a plain string
+    is refused, because a filter passed in its place would match some other
+    file.
     """
+    if not isinstance(file_url, str) or not file_url.strip():
+        frappe.throw(_("Choose a Tally XML file to import."))
     name = frappe.db.get_value("File", {"file_url": file_url}, "name")
     if not name:
-        frappe.throw("That file could not be found. Upload it again.")
+        frappe.throw(_("That file could not be found. Upload it again."))
     doc = frappe.get_doc("File", name)
+    doc.check_permission("read")
     content = doc.get_content()
     if isinstance(content, bytes):
         content = content.decode("utf-8", errors="replace")
     return doc, content
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def validate_file(file_url):
     """Does this file parse, and what is in it - before anything is written.
 
@@ -302,7 +307,7 @@ def validate_file(file_url):
     }
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def start_import(file_url, company=None):
     """Hand an uploaded file to a worker and answer with a log to watch.
 

@@ -89,7 +89,7 @@ def _last_exports():
     return out
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def areas(company=None, from_date=None, to_date=None):
     """One row per area for the Export page's two tables.
 
@@ -148,7 +148,7 @@ _INCLUDE_FLAG = {
 }
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def overview(company=None):
     """The Overview page in one request.
 
@@ -217,7 +217,7 @@ def overview(company=None):
     }
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def companies_with_defaults():
     """What the shell needs before it can draw anything: the companies, which one
     to open on, and who is signed in.

@@ -337,7 +337,7 @@ _LIST_FIELDS = {
 }
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def running():
     """Every job still in flight, for the header indicator.
 
@@ -356,7 +356,7 @@ def running():
     return sorted(out, key=lambda r: r["started_at"] or "", reverse=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def status(name, kind="export"):
     """One job, by name. The polling fallback and the history detail read this."""
     _require(EXPORT_ROLES)
@@ -375,7 +375,7 @@ def _files(doctype, name):
     )
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def history(company=None, kind=None, status_filter=None, limit=50, start=0):
     """Every export and import, newest first - the Sync History page.
 
@@ -404,7 +404,7 @@ def history(company=None, kind=None, status_filter=None, limit=50, start=0):
     return out[cint(start): cint(start) + cint(limit)]
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def detail(name, kind="export"):
     """A job with everything the history page's expanded row shows."""
     _require(EXPORT_ROLES)
@@ -414,7 +414,7 @@ def detail(name, kind="export"):
     return row
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def cancel(name, kind="export", reason=None):
     """Stop counting a job that is not going anywhere.
 
@@ -449,7 +449,7 @@ def cancel(name, kind="export", reason=None):
     return _row(frappe.get_doc(doctype, name), kind)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def notifications(since=None, limit=20):
     """What has happened that somebody would want to know about.
 

@@ -98,7 +98,7 @@ def _run_sync():
         frappe.db.commit()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def has_app_permission():
     """Whether the Tally Connector tile shows on the apps screen."""
     return frappe.has_permission("Tally Settings", "read")

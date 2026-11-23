@@ -163,7 +163,7 @@ def _fail_log(log_name, error):
 # Connection test
 # ─────────────────────────────────────────────────────────────────────────────
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def test_tally_connection():
     """Test connectivity to the Tally Prime XML server."""
     _require(EXPORT_ROLES)
@@ -303,70 +303,70 @@ def _run_export(key, from_date, to_date, push, company):
         return {"success": False, "error": str(e), "log": log_name}
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_chart_of_accounts(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("chart_of_accounts", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_parties(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("parties", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_uoms(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("uoms", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_stock_items(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("stock_items", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_sales_invoices(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("sales_invoices", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_purchase_invoices(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("purchase_invoices", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_payment_in(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("payment_in", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_payment_out(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("payment_out", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_journal_entries(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("journal_entries", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_bank_transactions(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
@@ -661,7 +661,7 @@ def run_full_export(log_name, from_date, to_date, company, push=False,
         return {"success": False, "error": str(e), "log": log_name}
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_all(from_date=None, to_date=None, export_format="Tally XML",
                push_to_tally_flag=False, company=None, background=None):
     """Everything, as two files: masters then vouchers.
@@ -705,7 +705,7 @@ def export_all(from_date=None, to_date=None, export_format="Tally XML",
                            export_format)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def export_status(log):
     """Where a background export has got to, and the files if it has finished."""
     _require(EXPORT_ROLES)
@@ -878,7 +878,7 @@ def certify_export(company, report, counts=None, ask_tally=False):
     )
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def preflight(from_date=None, to_date=None, company=None, ask_tally=False):
     """A dry run: generate the export, validate it, throw the files away.
 
@@ -932,7 +932,7 @@ def preflight(from_date=None, to_date=None, company=None, ask_tally=False):
     }
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def verify_in_tally(from_date=None, to_date=None, company=None):
     """What ERPNext sent, what Tally holds, and what is missing, by name.
 
@@ -996,7 +996,7 @@ def verify_in_tally(from_date=None, to_date=None, company=None):
     }
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def stale_in_tally(company=None):
     """Vouchers Tally holds that ERPNext has cancelled or amended.
 
@@ -1029,7 +1029,7 @@ def stale_in_tally(company=None):
     }
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def check_target_company():
     """Ask the destination Tally what it is, read-only.
 
@@ -1057,7 +1057,7 @@ def check_target_company():
 
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_single_document(doctype, docname, push_to_tally_flag=False):
     """Export exactly the document named, and nothing else.
 
@@ -1125,7 +1125,7 @@ def export_single_document(doctype, docname, push_to_tally_flag=False):
     return out
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["GET", "POST"])
 def companies():
     """Companies this caller may export, for the dashboard's picker."""
     _require(EXPORT_ROLES)

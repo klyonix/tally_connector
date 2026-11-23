@@ -17,3 +17,15 @@ class TallySyncRecord(Document):
         frappe.throw(
             "A sync record is the only evidence that this document reached "
             "Tally. It is not deleted; re-sync the document instead.")
+
+
+# The natural key of the ledger: one document, one destination. Held by the
+# database rather than by a read before the insert, because two pushes running
+# at once (the hourly sync and a person) both read "no record" and both insert.
+# `source_name` leads so the bulk read by document name can use it too.
+NATURAL_KEY = ("source_name", "source_doctype", "erpnext_company", "tally_company")
+UNIQUE_KEY = "unique_source_destination"
+
+
+def on_doctype_update():
+    frappe.db.add_unique("Tally Sync Record", list(NATURAL_KEY), constraint_name=UNIQUE_KEY)
