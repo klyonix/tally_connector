@@ -277,6 +277,12 @@ and in every quantity - so the three cannot disagree.
 with a duty head. That is the only place Tally reads them from when it builds a
 return; a GST ledger anywhere else imports perfectly and is missing from GSTR-1.
 
+**Every document that posts reaches Tally.** Expense Claims, Stock Entries and
+Purchase Receipts have no reader of their own, so each goes as a Journal built
+from the entries it made in ERPNext's general ledger. The export is checked
+against that ledger, not against what was sent, which is what catches a
+document type nothing reads.
+
 **Rounding follows ERPNext.** Where rounding is on, the party is posted the
 *rounded* total and the difference goes to Round Off - the same entry ERPNext
 made, so a receipt clears the bill exactly.
@@ -285,8 +291,6 @@ made, so a receipt clears the bill exactly.
 
 ## Known limits
 
-- **Expense Claims are not exported.** An employee's balance in Tally will not
-  match ERPNext where expense claims exist.
 - **TDS is booked net.** ERPNext credits the supplier gross and debits the
   deduction back on the same account; this posts the net once. Same ledger, same
   net, same outstanding - a presentation difference, not an accounting one.
