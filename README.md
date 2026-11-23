@@ -337,4 +337,4 @@ Tally-specific facts discovered along the way are recorded in
 
 ---
 
-MIT · [KlyONIX Tech](https://klyonix.com)
+[AGPL-3.0](LICENSE) · [KlyONIX Tech](https://klyonix.com)

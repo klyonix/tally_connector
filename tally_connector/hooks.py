@@ -3,7 +3,7 @@ app_title = "Tally Connector"
 app_publisher = "KlyONIX Tech"
 app_description = "ERPNext to Tally Prime XML Export & Sync"
 app_email = "rk@klyonix.com"
-app_license = "MIT"
+app_license = "AGPLv3"
 app_version = "1.0.0"
 
 # ──────────────────────────────────────────────
