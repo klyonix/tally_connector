@@ -76,9 +76,22 @@ def _a_sellable_item():
 
 
 def _a_customer():
-	"""An enabled customer. A disabled one is refused on submit."""
-	return frappe.db.get_value("Customer", {"disabled": 0}, "name") or frappe.db.get_value(
-		"Customer", {}, "name"
+	"""An enabled customer, made when the site has none. A disabled one is
+	refused on submit."""
+	name = frappe.db.get_value("Customer", {"disabled": 0}, "name")
+	if name:
+		return name
+	return (
+		frappe.get_doc(
+			{
+				"doctype": "Customer",
+				"customer_name": "Acme Industries",
+				"customer_group": frappe.db.get_value("Customer Group", {"is_group": 0}, "name"),
+				"territory": frappe.db.get_value("Territory", {"is_group": 0}, "name"),
+			}
+		)
+		.insert(ignore_permissions=True)
+		.name
 	)
 
 
