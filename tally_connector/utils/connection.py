@@ -1105,14 +1105,11 @@ def push_to_tally(xml_string, export_log_name=None):
 		# Tally said it would not serve the request, which is a statement that
 		# nothing was imported - so this is a refusal that can be sent again,
 		# not an answer nobody can read.
-		parsed = dict(
-			unread,
-			parsed=True,
-			errors=[
-				"Tally was busy and did not serve the request, so nothing was imported. "
-				f"It answered: {_busy_words(response)}"
-			],
+		declined = (
+			"Tally was busy and did not serve the request, so nothing was imported. "
+			f"It answered: {_busy_words(response)}"
 		)
+		parsed = dict(unread, parsed=True, errors=[declined])
 	elif state == ANSWERED:
 		parsed = conn.parse_tally_response(response)
 	else:
