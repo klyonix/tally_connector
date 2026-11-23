@@ -16,18 +16,18 @@ import frappe
 
 
 def execute():
-    if not frappe.db.exists("DocType", "Tally Settings"):
-        return
+	if not frappe.db.exists("DocType", "Tally Settings"):
+		return
 
-    singles = frappe.qb.DocType("Singles")
-    stored = (
-        frappe.qb.from_(singles)
-        .select(singles.value)
-        .where((singles.doctype == "Tally Settings") & (singles.field == "sync_enabled"))
-    ).run()
-    # Only where the site has no opinion. Somebody who has deliberately switched
-    # syncing off must not have it switched back on by an upgrade.
-    if stored:
-        return
+	singles = frappe.qb.DocType("Singles")
+	stored = (
+		frappe.qb.from_(singles)
+		.select(singles.value)
+		.where((singles.doctype == "Tally Settings") & (singles.field == "sync_enabled"))
+	).run()
+	# Only where the site has no opinion. Somebody who has deliberately switched
+	# syncing off must not have it switched back on by an upgrade.
+	if stored:
+		return
 
-    frappe.db.set_single_value("Tally Settings", "sync_enabled", 1)
+	frappe.db.set_single_value("Tally Settings", "sync_enabled", 1)

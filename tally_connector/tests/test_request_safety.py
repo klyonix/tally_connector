@@ -22,13 +22,22 @@ API_MODULES = ("dashboard", "export", "import_data", "jobs", "settings", "sync")
 
 # Every method that writes, imports, pushes to Tally or queues a job.
 WRITES = {
-	"export.export_chart_of_accounts", "export.export_parties", "export.export_uoms",
-	"export.export_stock_items", "export.export_sales_invoices",
-	"export.export_purchase_invoices", "export.export_payment_in",
-	"export.export_payment_out", "export.export_journal_entries",
-	"export.export_bank_transactions", "export.export_all",
-	"export.export_single_document", "import_data.process_tally_xml",
-	"import_data.start_import", "jobs.cancel", "settings.save",
+	"export.export_chart_of_accounts",
+	"export.export_parties",
+	"export.export_uoms",
+	"export.export_stock_items",
+	"export.export_sales_invoices",
+	"export.export_purchase_invoices",
+	"export.export_payment_in",
+	"export.export_payment_out",
+	"export.export_journal_entries",
+	"export.export_bank_transactions",
+	"export.export_all",
+	"export.export_single_document",
+	"import_data.process_tally_xml",
+	"import_data.start_import",
+	"jobs.cancel",
+	"settings.save",
 	"settings.set_sync_enabled",
 }
 
@@ -80,10 +89,14 @@ class TestImportReadsOnlyPermittedFiles(IntegrationTestCase):
 
 	def _private_file(self, owner):
 		frappe.set_user(owner)
-		doc = frappe.get_doc({
-			"doctype": "File", "file_name": f"tally-{frappe.generate_hash(length=8)}.xml",
-			"content": b"<ENVELOPE/>", "is_private": 1,
-		}).insert(ignore_permissions=True)
+		doc = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": f"tally-{frappe.generate_hash(length=8)}.xml",
+				"content": b"<ENVELOPE/>",
+				"is_private": 1,
+			}
+		).insert(ignore_permissions=True)
 		frappe.set_user("Administrator")
 		self.files.append(doc)
 		return doc
@@ -91,8 +104,9 @@ class TestImportReadsOnlyPermittedFiles(IntegrationTestCase):
 	def _accounts_manager(self):
 		email = "tally-import-reader@example.com"
 		if not frappe.db.exists("User", email):
-			frappe.get_doc({"doctype": "User", "email": email, "first_name": "Import",
-			                "send_welcome_email": 0}).insert(ignore_permissions=True)
+			frappe.get_doc(
+				{"doctype": "User", "email": email, "first_name": "Import", "send_welcome_email": 0}
+			).insert(ignore_permissions=True)
 		user = frappe.get_doc("User", email)
 		user.add_roles("Accounts Manager")
 		return email
@@ -149,8 +163,7 @@ class TestOneLedgerRecordPerDocument(IntegrationTestCase):
 
 		self.assertEqual(doc.name, first.name)
 		self.assertEqual(doc.attempts, 2)
-		self.assertEqual(frappe.db.count(sync_ledger.DOCTYPE,
-		                                 sync_ledger._filters(*self.KEY)), 1)
+		self.assertEqual(frappe.db.count(sync_ledger.DOCTYPE, sync_ledger._filters(*self.KEY)), 1)
 
 
 class TestMergingDuplicates(UnitTestCase):
@@ -158,8 +171,7 @@ class TestMergingDuplicates(UnitTestCase):
 		return SimpleNamespace(name=name, outcome=outcome, modified=modified)
 
 	def test_a_record_saying_tally_holds_it_wins(self):
-		rows = [self._row("a", "Failed", 3), self._row("b", "Created", 1),
-		        self._row("c", "Pending", 2)]
+		rows = [self._row("a", "Failed", 3), self._row("b", "Created", 1), self._row("c", "Pending", 2)]
 		self.assertEqual(keep_of(rows).name, "b")
 
 	def test_a_record_waiting_on_a_person_beats_a_failure(self):

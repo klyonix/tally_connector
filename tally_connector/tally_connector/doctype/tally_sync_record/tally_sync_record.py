@@ -14,13 +14,13 @@ from frappe.model.document import Document
 
 
 class TallySyncRecord(Document):
-    def on_trash(self):
-        frappe.throw(
-            _(
-                "A sync record is the only evidence that this document reached "
-                "Tally. It is not deleted; re-sync the document instead."
-            )
-        )
+	def on_trash(self):
+		frappe.throw(
+			_(
+				"A sync record is the only evidence that this document reached "
+				"Tally. It is not deleted; re-sync the document instead."
+			)
+		)
 
 
 # The natural key of the ledger: one document, one destination. Held by the
@@ -32,4 +32,4 @@ UNIQUE_KEY = "unique_source_destination"
 
 
 def on_doctype_update():
-    frappe.db.add_unique("Tally Sync Record", list(NATURAL_KEY), constraint_name=UNIQUE_KEY)
+	frappe.db.add_unique("Tally Sync Record", list(NATURAL_KEY), constraint_name=UNIQUE_KEY)

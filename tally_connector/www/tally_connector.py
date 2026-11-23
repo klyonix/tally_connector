@@ -19,17 +19,17 @@ no_cache = 1
 
 
 def get_context(context):
-    if frappe.session.user == "Guest":
-        frappe.local.flags.redirect_location = "/login?redirect-to=/tally-connector"
-        raise frappe.Redirect
+	if frappe.session.user == "Guest":
+		frappe.local.flags.redirect_location = "/login?redirect-to=/tally-connector"
+		raise frappe.Redirect
 
-    if frappe.session.user != "Administrator" and not set(EXPORT_ROLES) & set(frappe.get_roles()):
-        frappe.throw(
-            _("You do not have access to Tally Connector. This needs one of: {0}.").format(
-                ", ".join(EXPORT_ROLES)
-            ),
-            frappe.PermissionError,
-        )
+	if frappe.session.user != "Administrator" and not set(EXPORT_ROLES) & set(frappe.get_roles()):
+		frappe.throw(
+			_("You do not have access to Tally Connector. This needs one of: {0}.").format(
+				", ".join(EXPORT_ROLES)
+			),
+			frappe.PermissionError,
+		)
 
-    context.no_cache = 1
-    return context
+	context.no_cache = 1
+	return context

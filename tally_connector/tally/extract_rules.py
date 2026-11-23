@@ -14,12 +14,12 @@ UNIT_SYMBOL_MAX = 8
 
 
 def tally_key(name):
-    """A name as Tally compares it: case and every non-alphanumeric ignored.
+	"""A name as Tally compares it: case and every non-alphanumeric ignored.
 
-    Read off a real refusal rather than a document. A masters file sent a ledger
-    called `Stock In Hand`, and Tally stopped with *"Improper change of Group
-    Name for Ledger 'Stock-in-Hand'!"* - naming its own reserved group, spelled
-    with hyphens. So to Tally those are one name, and a check that compares
-    case alone is comparing something Tally does not.
-    """
-    return "".join(c for c in (name or "").lower() if c.isalnum())
+	Read off a real refusal rather than a document. A masters file sent a ledger
+	called `Stock In Hand`, and Tally stopped with *"Improper change of Group
+	Name for Ledger 'Stock-in-Hand'!"* - naming its own reserved group, spelled
+	with hyphens. So to Tally those are one name, and a check that compares
+	case alone is comparing something Tally does not.
+	"""
+	return "".join(c for c in (name or "").lower() if c.isalnum())

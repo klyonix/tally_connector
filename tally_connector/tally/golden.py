@@ -28,72 +28,78 @@ GOLDEN = os.path.normpath(os.path.join(TESTS, "golden"))
 
 
 def scenarios():
-    for name in sorted(os.listdir(FIXTURES)):
-        if name.endswith(".json"):
-            yield name[:-5]
+	for name in sorted(os.listdir(FIXTURES)):
+		if name.endswith(".json"):
+			yield name[:-5]
 
 
 def load(name):
-    with open(os.path.join(FIXTURES, name + ".json"), encoding="utf-8") as fh:
-        return export_from_dict(json.load(fh))
+	with open(
+		os.path.join(FIXTURES, name + ".json"), encoding="utf-8"
+	) as fh:  # nosemgrep: frappe-security-file-traversal - a fixed test fixture path
+		return export_from_dict(json.load(fh))
 
 
 def rendered(name):
-    """The two documents this scenario produces, keyed by golden file name."""
-    masters, vouchers = render(load(name))
-    return {f"{name}.masters.xml": masters, f"{name}.vouchers.xml": vouchers}
+	"""The two documents this scenario produces, keyed by golden file name."""
+	masters, vouchers = render(load(name))
+	return {f"{name}.masters.xml": masters, f"{name}.vouchers.xml": vouchers}
 
 
 def golden_path(filename):
-    return os.path.join(GOLDEN, filename)
+	return os.path.join(GOLDEN, filename)
 
 
 def check():
-    """Returns a list of (filename, reason) for everything that does not match."""
-    failures = []
-    for name in scenarios():
-        for filename, produced in rendered(name).items():
-            path = golden_path(filename)
-            if not os.path.exists(path):
-                failures.append((filename, "no golden file"))
-                continue
-            with open(path, encoding="utf-8") as fh:
-                expected = fh.read()
-            if expected != produced:
-                failures.append((filename, "differs from golden"))
-    return failures
+	"""Returns a list of (filename, reason) for everything that does not match."""
+	failures = []
+	for name in scenarios():
+		for filename, produced in rendered(name).items():
+			path = golden_path(filename)
+			if not os.path.exists(path):
+				failures.append((filename, "no golden file"))
+				continue
+			with open(
+				path, encoding="utf-8"
+			) as fh:  # nosemgrep: frappe-security-file-traversal - a fixed test fixture path
+				expected = fh.read()
+			if expected != produced:
+				failures.append((filename, "differs from golden"))
+	return failures
 
 
 def write():
-    os.makedirs(GOLDEN, exist_ok=True)
-    written = []
-    for name in scenarios():
-        for filename, produced in rendered(name).items():
-            with open(golden_path(filename), "w", encoding="utf-8") as fh:
-                fh.write(produced)
-            written.append(filename)
-    return written
+	os.makedirs(GOLDEN, exist_ok=True)
+	written = []
+	for name in scenarios():
+		for filename, produced in rendered(name).items():
+			with open(
+				golden_path(filename), "w", encoding="utf-8"
+			) as fh:  # nosemgrep: frappe-security-file-traversal - a fixed test fixture path
+				fh.write(produced)
+			written.append(filename)
+	return written
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--write", action="store_true",
-                        help="overwrite the golden files with current output")
-    parser.add_argument("--check", action="store_true",
-                        help="compare current output against the golden files")
-    args = parser.parse_args(argv)
+	parser = argparse.ArgumentParser(description=__doc__)
+	parser.add_argument("--write", action="store_true", help="overwrite the golden files with current output")
+	parser.add_argument(
+		"--check", action="store_true", help="compare current output against the golden files"
+	)
+	args = parser.parse_args(argv)
 
-    if args.write:
-        for filename in write():
-            print(f"  wrote {filename}")
-        return 0
+	if args.write:
+		for filename in write():
+			print(f"  wrote {filename}")
+		return 0
 
-    failures = check()
-    for filename, reason in failures:
-        print(f"  {filename}: {reason}")
-    print(f"{len(list(scenarios()))} scenarios, {len(failures)} mismatches")
-    return 1 if failures else 0
+	failures = check()
+	for filename, reason in failures:
+		print(f"  {filename}: {reason}")
+	print(f"{len(list(scenarios()))} scenarios, {len(failures)} mismatches")
+	return 1 if failures else 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+	sys.exit(main())

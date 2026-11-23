@@ -24,15 +24,13 @@ from unittest.mock import patch
 
 @contextmanager
 def inventory_sent():
-    """`extract` and everything built on it carry their stock lines."""
-    with patch("tally_connector.tally.extract.sending_inventory",
-               return_value=True):
-        yield
+	"""`extract` and everything built on it carry their stock lines."""
+	with patch("tally_connector.tally.extract.sending_inventory", return_value=True):
+		yield
 
 
 @contextmanager
 def inventory_folded():
-    """`extract` folds every stock line onto the ledger it posted to."""
-    with patch("tally_connector.tally.extract.sending_inventory",
-               return_value=False):
-        yield
+	"""`extract` folds every stock line onto the ledger it posted to."""
+	with patch("tally_connector.tally.extract.sending_inventory", return_value=False):
+		yield
