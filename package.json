@@ -1,6 +1,6 @@
 {
   "name": "tally_connector",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "ERPNext to Tally Prime XML Export & Sync",
   "private": true,
   "scripts": {
