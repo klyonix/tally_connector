@@ -24,7 +24,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import frappe
-from frappe.tests.utils import FrappeTestCase
+from frappe.tests import IntegrationTestCase
 
 from tally_connector.api import export as api
 from tally_connector.tally.validate import ABORTS, Finding
@@ -50,7 +50,7 @@ class _Recorder:
         return self.outcome(xml, log)
 
 
-class TestNothingKnownBadIsSent(FrappeTestCase):
+class TestNothingKnownBadIsSent(IntegrationTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -164,7 +164,7 @@ class TestNothingKnownBadIsSent(FrappeTestCase):
 _real_validate = api.validate
 
 
-class TestTallysAnswerIsReadHonestly(FrappeTestCase):
+class TestTallysAnswerIsReadHonestly(IntegrationTestCase):
     """`parse_tally_response` used to swallow every exception, so anything that
     was not XML came back as `created=0, altered=0, errors=[]` - which the
     caller recorded as a clean import."""
@@ -219,7 +219,7 @@ class TestTallysAnswerIsReadHonestly(FrappeTestCase):
                 self.assertTrue(parsed["errors"])
 
 
-class TestPushingOneDocumentByHand(FrappeTestCase):
+class TestPushingOneDocumentByHand(IntegrationTestCase):
     """The button somebody presses every day, rather than once at migration.
 
     It pushed straight through `push_to_tally`, which meant two things: it
@@ -289,7 +289,7 @@ class TestPushingOneDocumentByHand(FrappeTestCase):
             "recorded against no company is a row nothing ever matches")
 
 
-class TestTheGateAsksTheDestination(FrappeTestCase):
+class TestTheGateAsksTheDestination(IntegrationTestCase):
     """A connected Tally full of the right masters refused its own data.
 
     `_would_be_refused` validated with no target, so every master already in

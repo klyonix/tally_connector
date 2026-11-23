@@ -1,3 +1,4 @@
+from frappe.tests import UnitTestCase
 """
 The offline suite. No site, no database, no Tally.
 
@@ -30,7 +31,7 @@ from tally_connector.tally.render import render, render_vouchers
 import datetime
 
 
-class TestGoldenFiles(unittest.TestCase):
+class TestGoldenFiles(UnitTestCase):
     """Every scenario renders exactly what was committed.
 
     A diff here is either a defect or an intended change; either way somebody
@@ -58,7 +59,7 @@ class TestGoldenFiles(unittest.TestCase):
                 self.assertEqual(golden.rendered(name), golden.rendered(name))
 
 
-class TestSignConvention(unittest.TestCase):
+class TestSignConvention(UnitTestCase):
     """Tally reads the sign off the amount; ISDEEMEDPOSITIVE flags the debit side.
 
     Storing both separately is how they came to disagree, and how a purchase
@@ -92,7 +93,7 @@ class TestSignConvention(unittest.TestCase):
         self.assertEqual(by_ledger["A"].findtext("ISDEEMEDPOSITIVE"), "No")
 
 
-class TestVoucherBalance(unittest.TestCase):
+class TestVoucherBalance(UnitTestCase):
     """The check Tally applies hardest: amounts must sum to zero."""
 
     def test_every_scenario_balances_except_the_one_that_should_not(self):
@@ -122,7 +123,7 @@ class TestVoucherBalance(unittest.TestCase):
         self.assertTrue(export.vouchers[0].balances())
 
 
-class TestInvoiceView(unittest.TestCase):
+class TestInvoiceView(UnitTestCase):
     """A voucher carrying stock must declare the invoice view, or Tally answers
     'Can't mix Stock Items and Accounting Entries'."""
 
@@ -187,7 +188,7 @@ class TestInvoiceView(unittest.TestCase):
         self.assertTrue(seen["accounting"], "no accounting voucher either")
 
 
-class TestBillWise(unittest.TestCase):
+class TestBillWise(UnitTestCase):
     """A ledger with ISBILLWISEON obliges its vouchers to carry bill references,
     or the amount posts to On Account and the ageing is useless."""
 
@@ -228,7 +229,7 @@ class TestBillWise(unittest.TestCase):
         self.assertEqual(party[0].findtext("BILLALLOCATIONS.LIST/BILLTYPE"), "New Ref")
 
 
-class TestEscapingAndStructure(unittest.TestCase):
+class TestEscapingAndStructure(UnitTestCase):
     def test_ampersands_and_brackets_survive(self):
         xml = golden.rendered("party_needing_escaping")[
             "party_needing_escaping.vouchers.xml"]
@@ -320,7 +321,7 @@ class TestEscapingAndStructure(unittest.TestCase):
         self.assertIsNone(voucher.find("OBJVIEW"))
 
 
-class TestClosure(unittest.TestCase):
+class TestClosure(UnitTestCase):
     """Every ledger a voucher names must be created by a master.
 
     Held offline now as well as against the site: this is what Tally reports as
@@ -342,7 +343,7 @@ class TestClosure(unittest.TestCase):
                 self.assertEqual(sorted(referenced - created), [])
 
 
-class TestOffline(unittest.TestCase):
+class TestOffline(UnitTestCase):
     def test_only_the_extract_layer_imports_frappe(self):
         """The property the whole layering exists for.
 

@@ -9,14 +9,18 @@ books, so nobody may.
 """
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 
 class TallySyncRecord(Document):
     def on_trash(self):
         frappe.throw(
-            "A sync record is the only evidence that this document reached "
-            "Tally. It is not deleted; re-sync the document instead.")
+            _(
+                "A sync record is the only evidence that this document reached "
+                "Tally. It is not deleted; re-sync the document instead."
+            )
+        )
 
 
 # The natural key of the ledger: one document, one destination. Held by the

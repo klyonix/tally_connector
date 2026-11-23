@@ -1,6 +1,32 @@
 {
+ "actions": [],
  "autoname": "TCI-.YYYY.-.MM.-.#####",
+ "creation": "2026-09-09 14:25:27.884462",
  "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "import_type",
+  "status",
+  "records_imported",
+  "records_failed",
+  "imported_at",
+  "error_log",
+  "file_attachment",
+  "company",
+  "file_name",
+  "progress_section",
+  "job_id",
+  "stage",
+  "stages_reached",
+  "progress",
+  "icb1",
+  "processed",
+  "total_records",
+  "warnings",
+  "icb2",
+  "started_at",
+  "finished_at"
+ ],
  "fields": [
   {
    "fieldname": "import_type",
@@ -130,10 +156,13 @@
    "read_only": 1
   }
  ],
- "is_submittable": 0,
- "issingle": 0,
+ "link_display_mode": "Search",
+ "links": [],
+ "modified": "2026-11-23 12:08:39.070122",
+ "modified_by": "Administrator",
  "module": "Tally Connector",
  "name": "Tally Import Log",
+ "owner": "Administrator",
  "permissions": [
   {
    "delete": 1,
@@ -151,8 +180,9 @@
    "role": "Accounts User"
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
- "title_field": "import_type",
- "track_changes": 0
+ "states": [],
+ "title_field": "import_type"
 }

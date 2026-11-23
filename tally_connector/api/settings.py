@@ -9,6 +9,7 @@ a Single, including ones no screen draws.
 """
 
 import frappe
+from frappe import _
 
 from tally_connector.api.export import ADMIN_ROLES, EXPORT_ROLES, _require
 
@@ -73,7 +74,7 @@ def get():
 
 
 @frappe.whitelist(methods=["POST"])
-def save(values):
+def save(values: dict | str):
     """Write the settings somebody changed, and only those.
 
     Fenced to the narrower role tuple: running an export is clerical, and
@@ -87,19 +88,18 @@ def save(values):
     unknown = sorted(set(values) - set(WRITABLE))
     if unknown:
         frappe.throw(
-            "These are not settings this screen can change: " + ", ".join(unknown)
+            _("These are not settings this screen can change: {0}").format(", ".join(unknown))
         )
 
     doc = frappe.get_single("Tally Settings")
     for name, value in values.items():
         doc.set(name, value)
     doc.save(ignore_permissions=True)
-    frappe.db.commit()
     return get()
 
 
 @frappe.whitelist(methods=["POST"])
-def set_sync_enabled(enabled):
+def set_sync_enabled(enabled: bool | str):
     """The master switch, from the top bar.
 
     Its own endpoint rather than a `save` of one field, because this is fenced
@@ -109,7 +109,6 @@ def set_sync_enabled(enabled):
     """
     _require(EXPORT_ROLES)
     value = 1 if str(enabled).lower() in ("1", "true", "yes") else 0
-    frappe.db.set_value("Tally Settings", "Tally Settings", "sync_enabled", value)
-    frappe.db.commit()
+    frappe.db.set_single_value("Tally Settings", "sync_enabled", value)
     frappe.clear_document_cache("Tally Settings", "Tally Settings")
     return {"sync_enabled": bool(value)}

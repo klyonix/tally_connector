@@ -1,6 +1,37 @@
 {
+ "actions": [],
  "autoname": "TC-.YYYY.-.MM.-.#####",
+ "creation": "2026-09-09 14:25:27.809151",
  "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "export_type",
+  "status",
+  "export_format",
+  "from_date",
+  "to_date",
+  "records_exported",
+  "records_failed",
+  "exported_at",
+  "tally_response",
+  "error_log",
+  "xml_preview",
+  "file_attachment",
+  "company",
+  "progress_section",
+  "job_id",
+  "stage",
+  "stages_reached",
+  "progress",
+  "pcb1",
+  "processed",
+  "total_records",
+  "warnings",
+  "validation_summary",
+  "pcb2",
+  "started_at",
+  "finished_at"
+ ],
  "fields": [
   {
    "fieldname": "export_type",
@@ -161,10 +192,13 @@
    "read_only": 1
   }
  ],
- "is_submittable": 0,
- "issingle": 0,
+ "link_display_mode": "Search",
+ "links": [],
+ "modified": "2026-11-23 12:08:38.514663",
+ "modified_by": "Administrator",
  "module": "Tally Connector",
  "name": "Tally Export Log",
+ "owner": "Administrator",
  "permissions": [
   {
    "delete": 1,
@@ -182,8 +216,9 @@
    "role": "Accounts User"
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
- "title_field": "export_type",
- "track_changes": 0
+ "states": [],
+ "title_field": "export_type"
 }

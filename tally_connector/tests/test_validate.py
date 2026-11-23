@@ -1,3 +1,4 @@
+from frappe.tests import UnitTestCase
 """
 The validator, offline. No site, no database, no Tally.
 
@@ -35,7 +36,7 @@ def checks_fired(report):
     return {f.check for f in report.findings}
 
 
-class TestGoodScenariosAreClean(unittest.TestCase):
+class TestGoodScenariosAreClean(UnitTestCase):
     def test_every_scenario_validates_except_the_one_that_should_not(self):
         for name in golden.scenarios():
             report = validate(golden.load(name))
@@ -55,7 +56,7 @@ class TestGoodScenariosAreClean(unittest.TestCase):
         self.assertFalse(report.checked["target_company_known"])
 
 
-class TestEveryCheckFires(unittest.TestCase):
+class TestEveryCheckFires(UnitTestCase):
     """One deliberately broken fixture per check."""
 
     CASES = {
@@ -108,7 +109,7 @@ class TestEveryCheckFires(unittest.TestCase):
         self.assertEqual(sorted(every - covered), [])
 
 
-class TestTallyMatchesNamesItsOwnWay(unittest.TestCase):
+class TestTallyMatchesNamesItsOwnWay(UnitTestCase):
     """Case and punctuation ignored, read off a real refusal: a ledger sent as
     `Stock In Hand` was refused as *"Improper change of Group Name for Ledger
     'Stock-in-Hand'!"*."""
@@ -128,7 +129,7 @@ class TestTallyMatchesNamesItsOwnWay(unittest.TestCase):
         self.assertEqual(reserved_group("Stock Assets"), "")
 
 
-class TestTargetCompanyChecks(unittest.TestCase):
+class TestTargetCompanyChecks(UnitTestCase):
     """Dates and voucher types cannot be answered from ERPNext alone.
 
     Where nothing is known about the destination the checks are skipped, rather
@@ -221,7 +222,7 @@ class TestTargetCompanyChecks(unittest.TestCase):
         self.assertTrue(validate(golden.load("sale_domestic_gst"), target).ok)
 
 
-class TestSeverity(unittest.TestCase):
+class TestSeverity(UnitTestCase):
     def test_blocking_findings_are_separated_from_wrong_books(self):
         report = validate(load_broken("no_bill_reference"))
         self.assertFalse(report.ok)
@@ -240,7 +241,7 @@ class TestSeverity(unittest.TestCase):
         json.dumps(data)
 
 
-class TestReadBackFromXml(unittest.TestCase):
+class TestReadBackFromXml(UnitTestCase):
     """The validator's second way in: XML that already exists.
 
     This is what lets stage 2 check the live export before stage 3 has bridged
@@ -295,7 +296,7 @@ class TestReadBackFromXml(unittest.TestCase):
         self.assertTrue(back.vouchers[0].balances())
 
 
-class TestOffline(unittest.TestCase):
+class TestOffline(UnitTestCase):
     def test_only_the_extract_layer_imports_frappe(self):
         """The property the whole layering exists for.
 

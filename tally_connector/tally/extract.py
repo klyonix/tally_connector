@@ -341,15 +341,20 @@ def _opening_balances(company, as_of):
     # Loss A/c read far above that revenue. The
     # movement was right the whole time; the opening was the whole of the
     # error. An income-tax return built on that would have been wrong.
-    rows = frappe.db.sql("""
-        SELECT g.account, g.party_type, g.party,
-               SUM(g.credit) - SUM(g.debit) AS balance
-        FROM `tabGL Entry` g
-        JOIN `tabAccount` a ON a.name = g.account
-        WHERE g.company = %s AND g.is_cancelled = 0 AND g.posting_date < %s
-          AND (a.root_type NOT IN ('Income', 'Expense') OR g.party IS NOT NULL)
-        GROUP BY g.account, g.party_type, g.party
-    """, (company, as_of), as_dict=True)
+    from frappe.query_builder.functions import Sum
+
+    gl, account = frappe.qb.DocType("GL Entry"), frappe.qb.DocType("Account")
+    rows = (
+        frappe.qb.from_(gl)
+        .join(account).on(account.name == gl.account)
+        .select(gl.account, gl.party_type, gl.party,
+                (Sum(gl.credit) - Sum(gl.debit)).as_("balance"))
+        .where((gl.company == company) & (gl.is_cancelled == 0)
+               & (gl.posting_date < as_of)
+               & (account.root_type.notin(["Income", "Expense"])
+                  | gl.party.isnotnull()))
+        .groupby(gl.account, gl.party_type, gl.party)
+    ).run(as_dict=True)
 
     opening = {}
     for row in rows:
@@ -1827,22 +1832,21 @@ def units_in_use(company=None, from_date=None, to_date=None):
     used = set(frappe.get_all("Item", pluck="stock_uom", limit_page_length=0) or [])
     for child, parent in (("Sales Invoice Item", "Sales Invoice"),
                           ("Purchase Invoice Item", "Purchase Invoice")):
-        conditions, values = ["c.parenttype = %s"], [parent]
+        c, p = frappe.qb.DocType(child), frappe.qb.DocType(parent)
+        query = (
+            frappe.qb.from_(c)
+            .join(p).on(p.name == c.parent)
+            .select(c.uom).distinct()
+            .where(c.parenttype == parent)
+        )
         if company:
-            conditions.append("p.company = %s")
-            values.append(company)
+            query = query.where(p.company == company)
         if from_date:
-            conditions.append("p.posting_date >= %s")
-            values.append(from_date)
+            query = query.where(p.posting_date >= from_date)
         if to_date:
-            conditions.append("p.posting_date <= %s")
-            values.append(to_date)
+            query = query.where(p.posting_date <= to_date)
         try:
-            rows = frappe.db.sql(
-                f"""SELECT DISTINCT c.uom FROM `tab{child}` c
-                    JOIN `tab{parent}` p ON p.name = c.parent
-                    WHERE {" AND ".join(conditions)}""", values)
-            used |= {r[0] for r in rows if r[0]}
+            used |= {uom for uom in query.run(pluck=True) if uom}
         except Exception:
             # An odd bench without the column is not a reason to lose the
             # masters; the items' own units are already in.

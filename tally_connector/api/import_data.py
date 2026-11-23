@@ -181,7 +181,7 @@ def _import_xml(xml_data, reporter=None):
                             except Exception as e:
                                 frappe.logger().error(f"Failed to reconcile voucher {vch_number}: {str(e)}")
 
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit - an import is committed as it goes
 
         # A reporter owns a log of its own and writes the outcome to it. Writing
         # a second one here would put two rows in the history for one import,
@@ -224,7 +224,7 @@ def _write_import_log(import_type, status, counts, error=None):
         if error:
             log.error_log = str(error)[:4000]
         log.insert(ignore_permissions=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit - the log outlives a failed import
     except Exception:
         frappe.log_error(frappe.get_traceback(), "Tally Connector: could not write import log")
 
@@ -234,7 +234,7 @@ def _write_import_log(import_type, status, counts, error=None):
 # ─────────────────────────────────────────────────────────────────────────────
 
 @frappe.whitelist(methods=["POST"])
-def process_tally_xml(xml_data):
+def process_tally_xml(xml_data: str):
     """Import a file the caller has in hand. Kept for a small file and for the
     Desk buttons; anything sizeable goes through `start_import` instead."""
     _require(ADMIN_ROLES)
@@ -265,7 +265,7 @@ def _read_file(file_url):
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def validate_file(file_url):
+def validate_file(file_url: str):
     """Does this file parse, and what is in it - before anything is written.
 
     Separate from importing on purpose. The old screen's only answer to a file
@@ -308,7 +308,7 @@ def validate_file(file_url):
 
 
 @frappe.whitelist(methods=["POST"])
-def start_import(file_url, company=None):
+def start_import(file_url: str, company: str | None = None):
     """Hand an uploaded file to a worker and answer with a log to watch.
 
     Always in the background, whatever the size. An import writes to the ledger,
@@ -332,7 +332,7 @@ def start_import(file_url, company=None):
     log.imported_at = frappe.utils.now_datetime()
     log.started_at = frappe.utils.now_datetime()
     log.insert(ignore_permissions=True)
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep: frappe-manual-commit - the queued job reads this row
 
     job = frappe.enqueue(
         "tally_connector.api.import_data.run_import",
@@ -340,7 +340,7 @@ def start_import(file_url, company=None):
     )
     frappe.db.set_value("Tally Import Log", log.name,
                         {"job_id": getattr(job, "id", None)}, update_modified=False)
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep: frappe-manual-commit - the queued job reads this row
     return {"success": True, "log": log.name, "kind": "import", "queued": True}
 
 

@@ -24,6 +24,7 @@ from unittest.mock import patch
 from tally_connector.tally import model
 from tally_connector.utils import connection
 from tally_connector.utils.connection import MASTER_ORDER, push_masters
+from frappe.tests import UnitTestCase
 
 
 def _masters(ledgers=0, items=0, groups=0):
@@ -44,7 +45,7 @@ def _ok(**over):
     return out
 
 
-class TestTheOrderCannotDrift(unittest.TestCase):
+class TestTheOrderCannotDrift(UnitTestCase):
 
     def test_master_order_is_the_order_the_renderer_writes(self):
         """Two copies of one ordering is how they come to disagree, and the
@@ -72,7 +73,7 @@ class TestTheOrderCannotDrift(unittest.TestCase):
                 self.assertIsInstance(getattr(m, kind), list)
 
 
-class TestBatching(unittest.TestCase):
+class TestBatching(UnitTestCase):
 
     def _push(self, masters, results=None, batch=250):
         """Send, with the transport replaced by a list of canned answers."""
@@ -125,7 +126,7 @@ class TestBatching(unittest.TestCase):
         self.assertGreater(first["bytes"], 0)
 
 
-class TestStoppingAtTheFirstRefusal(unittest.TestCase):
+class TestStoppingAtTheFirstRefusal(UnitTestCase):
     """Tally aborts a file at the first record it refuses and loses the rest,
     so the batch that failed is partly imported and every later batch would
     land on a company whose masters are already wrong. Carrying on turns one
@@ -174,7 +175,7 @@ class TestStoppingAtTheFirstRefusal(unittest.TestCase):
         self.assertEqual(len(calls), 1)
 
 
-class TestNotPostingAnEmptyFile(unittest.TestCase):
+class TestNotPostingAnEmptyFile(UnitTestCase):
     """The resolution drops every master the destination already holds, so a
     batch of 250 can legitimately come out empty. Posting it is a round trip
     that can only fail, on a company that has already fallen over once."""
@@ -206,7 +207,7 @@ class TestNotPostingAnEmptyFile(unittest.TestCase):
         self.assertEqual(calls, [])
 
 
-class TestNamingWhatTallyRefused(unittest.TestCase):
+class TestNamingWhatTallyRefused(UnitTestCase):
     """Tally will not say what it refused.
 
     A real batch answered *"0 errors and 1 exceptions"* and named nothing, so
@@ -279,7 +280,7 @@ class TestNamingWhatTallyRefused(unittest.TestCase):
         self.assertEqual(summary["refused"], [])
 
 
-class TestAnUnreadableAnswerIsNeverBisected(unittest.TestCase):
+class TestAnUnreadableAnswerIsNeverBisected(UnitTestCase):
     """`unknown` means Tally fell over or said something that could not be
     read. Sending it another 250 requests one at a time is how a wounded Tally
     is finished off, which is the failure this batching exists to avoid.
@@ -321,7 +322,7 @@ class TestAnUnreadableAnswerIsNeverBisected(unittest.TestCase):
         self.assertIsNone(summary["stopped_at"])
 
 
-class TestSentMeansSent(unittest.TestCase):
+class TestSentMeansSent(UnitTestCase):
     """`sent` used to be the chunk's length, which is records considered.
 
     The renderer drops what the destination already holds and what Tally could
@@ -355,7 +356,7 @@ class TestSentMeansSent(unittest.TestCase):
         self.assertEqual(self._sent(_masters(ledgers=50)), 50)
 
 
-class TestCarryingOnPastARefusedBatch(unittest.TestCase):
+class TestCarryingOnPastARefusedBatch(UnitTestCase):
     """A run that stops at the first bad batch leaves the rest of a year's
     books in ERPNext.
 
@@ -429,7 +430,7 @@ class TestCarryingOnPastARefusedBatch(unittest.TestCase):
         self.assertEqual(out["stopped_at"], 1)
 
 
-class TestTheReconcileReadStaysSmall(unittest.TestCase):
+class TestTheReconcileReadStaysSmall(UnitTestCase):
     """The read after a refused batch asks about that batch's own dates.
 
     Asking for the whole period meant a read that grew with every voucher that
@@ -474,7 +475,7 @@ class TestTheReconcileReadStaysSmall(unittest.TestCase):
         self.assertEqual(asked["window"], ("2025-04-01", "2026-03-31"))
 
 
-class TestTheProbeIsAskedMoreThanOnce(unittest.TestCase):
+class TestTheProbeIsAskedMoreThanOnce(UnitTestCase):
     """One probe that timed out used to stop the whole run.
 
     Tally is busy in the moment after it has refused a file, and on a push

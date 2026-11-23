@@ -26,7 +26,7 @@ import unittest
 from unittest.mock import patch
 
 import frappe
-from frappe.tests.utils import FrappeTestCase
+from frappe.tests import IntegrationTestCase, UnitTestCase
 
 from tally_connector.utils.connection import TallyConnector
 
@@ -56,7 +56,7 @@ EMPTY_PERIOD = """<ENVELOPE><BODY><DATA><COLLECTION>
 </COLLECTION></DATA></BODY></ENVELOPE>"""
 
 
-class TestReadingWhatTallyHolds(FrappeTestCase):
+class TestReadingWhatTallyHolds(IntegrationTestCase):
 
     def _read(self, answer, ok=True):
         conn = TallyConnector()
@@ -107,7 +107,7 @@ class TestReadingWhatTallyHolds(FrappeTestCase):
         self.assertEqual(self._read(EMPTY_PERIOD), [])
 
 
-class TestNamingWhatIsMissing(FrappeTestCase):
+class TestNamingWhatIsMissing(IntegrationTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -156,7 +156,7 @@ class TestNamingWhatIsMissing(FrappeTestCase):
         self.assertNotIn("missing", out)
 
 
-class TestNarrationFitsWhatTallyHolds(unittest.TestCase):
+class TestNarrationFitsWhatTallyHolds(UnitTestCase):
     """Measured off TallyPrime's own export of a real company: 514 narrations,
     the longest 120 characters and the median also 120, which is what
     truncation looks like from outside. This connector was sending up to 1,456,

@@ -6,6 +6,8 @@ app_email = "rk@klyonix.com"
 app_license = "AGPLv3"
 app_version = "1.0.0"
 
+required_apps = ["erpnext"]
+
 # ──────────────────────────────────────────────
 # Desk Home Screen
 # ──────────────────────────────────────────────

@@ -828,7 +828,7 @@ def _note_pending(chunk, erpnext_company, tally_company):
         from tally_connector.utils.sync_ledger import note_pending
 
         note_pending(chunk, erpnext_company, tally_company)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit - a voucher is on record before it is sent
     except Exception:
         try:
             import frappe
@@ -860,7 +860,7 @@ def _record_batch(chunk, erpnext_company, tally_company, result):
         # were there in the transaction and went with it, leaving 2,503
         # vouchers in Tally that nothing knew about. A record that only exists
         # if the process exits cleanly is not a record of what was sent.
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit - what was sent is on record even if the process dies
     except Exception:
         try:
             import frappe
@@ -951,7 +951,7 @@ def push_to_tally(xml_string, export_log_name=None):
                 log.status = "Failed"
                 log.error_log = (response or "")[:4000]
             log.save(ignore_permissions=True)
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit - the log outlives a failed push
         except Exception:
             frappe.log_error(frappe.get_traceback(), "Tally Connector: Export Log update failed")
 

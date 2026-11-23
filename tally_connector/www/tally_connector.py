@@ -11,6 +11,7 @@ refuses every one of them is a worse answer than a redirect to the login.
 """
 
 import frappe
+from frappe import _
 
 from tally_connector.api.export import EXPORT_ROLES
 
@@ -24,8 +25,9 @@ def get_context(context):
 
     if frappe.session.user != "Administrator" and not set(EXPORT_ROLES) & set(frappe.get_roles()):
         frappe.throw(
-            "You do not have access to Tally Connector. "
-            f"This needs one of: {', '.join(EXPORT_ROLES)}.",
+            _("You do not have access to Tally Connector. This needs one of: {0}.").format(
+                ", ".join(EXPORT_ROLES)
+            ),
             frappe.PermissionError,
         )
 

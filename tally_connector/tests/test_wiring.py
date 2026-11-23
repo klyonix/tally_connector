@@ -19,7 +19,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 import frappe
-from frappe.tests.utils import FrappeTestCase
+from frappe.tests import IntegrationTestCase
 from lxml import etree
 
 from tally_connector.tally import model
@@ -54,7 +54,7 @@ def _names(xml, element):
     return [el.get("NAME") for el in root.iter(element)]
 
 
-class TestTheSnapshotChangesTheMastersFile(FrappeTestCase):
+class TestTheSnapshotChangesTheMastersFile(IntegrationTestCase):
 
     def test_without_a_resolution_everything_is_created_as_before(self):
         xml = render_masters("Co", _masters())
@@ -85,7 +85,7 @@ class TestTheSnapshotChangesTheMastersFile(FrappeTestCase):
                          ["Acme Ltd", "Brand New Customer"])
 
 
-class TestTheExporterAsksTheDestination(FrappeTestCase):
+class TestTheExporterAsksTheDestination(IntegrationTestCase):
 
     def test_it_asks_and_uses_the_answer(self):
         """`in_test` is patched off deliberately: the guard exists so an
@@ -124,7 +124,7 @@ def _voucher(name):
     return voucher
 
 
-class TestTheExporterAsksTheSyncLedger(FrappeTestCase):
+class TestTheExporterAsksTheSyncLedger(IntegrationTestCase):
 
     def setUp(self):
         self.company = frappe.db.get_value("Company", {}, "name")
@@ -182,7 +182,7 @@ class TestTheExporterAsksTheSyncLedger(FrappeTestCase):
         self.assertEqual(again, [], "a second export sent them again")
 
 
-class TestATestRunNeverAsksALiveTally(FrappeTestCase):
+class TestATestRunNeverAsksALiveTally(IntegrationTestCase):
     """Seven modules went red the first time a real Tally was connected, and
     every one of them was right: with a destination reachable the export sends
     only the masters Tally has not got, so an assertion about the file became

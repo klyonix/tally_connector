@@ -24,7 +24,6 @@ Pure: no site, no database.
 from __future__ import annotations
 
 import datetime
-import unittest
 from decimal import Decimal
 
 from tally_connector.tally import model
@@ -32,6 +31,7 @@ from tally_connector.tally.extract_rules import UNIT_SYMBOL_MAX
 from tally_connector.tally.render import render_masters
 from tally_connector.tally.validate import ABORTS, REJECTS, validate
 from tally_connector.utils.ledgers import is_reserved_group, reserved_group
+from frappe.tests import UnitTestCase
 
 
 def _export(**parts):
@@ -45,7 +45,7 @@ def _checks(export):
     return {f.check for f in validate(export).findings}
 
 
-class TestUnitSymbolTallyRefuses(unittest.TestCase):
+class TestUnitSymbolTallyRefuses(UnitTestCase):
     """`ERROR: Unit: Square Meter - BAD UNIT NAME`, and the same for
     `Parts Per Million`. Our `masters_*4e3c1f.xml` and `01_masters_*c5129b.xml`.
 
@@ -78,7 +78,7 @@ class TestUnitSymbolTallyRefuses(unittest.TestCase):
         self.assertIn("unit", _checks(export))
 
 
-class TestTallySystemGroupIsNeverRedefined(unittest.TestCase):
+class TestTallySystemGroupIsNeverRedefined(UnitTestCase):
     """`ERROR: Group: Current Assets - Group 'Application of Funds (Assets)' is
     already a child of this!`. Our `01_masters_*f7cce0.xml`.
 
@@ -109,7 +109,7 @@ class TestTallySystemGroupIsNeverRedefined(unittest.TestCase):
         self.assertNotIn("ledger parent", _checks(export))
 
 
-class TestNameMatchingIgnoresCaseAndPunctuation(unittest.TestCase):
+class TestNameMatchingIgnoresCaseAndPunctuation(UnitTestCase):
     """`ERROR: Ledger: Stock In Hand - Improper change of Group Name for Ledger
     'Stock-in-Hand'!`. Our `01_masters_*ce78a3.xml`.
 
@@ -139,7 +139,7 @@ class TestNameMatchingIgnoresCaseAndPunctuation(unittest.TestCase):
         self.assertEqual(ledger_name("Bad Debts - KTC", "KTC"), "Bad Debts")
 
 
-class TestAVoucherNeverNamesAnUncreatedLedger(unittest.TestCase):
+class TestAVoucherNeverNamesAnUncreatedLedger(UnitTestCase):
     """`ERROR: Voucher ... Ledger 'ACME TRADERS 9000000000' does not exist!`.
     Our `02_vouchers_*0b4119.xml`.
 
@@ -160,7 +160,7 @@ class TestAVoucherNeverNamesAnUncreatedLedger(unittest.TestCase):
         self.assertEqual({f.severity for f in findings}, {REJECTS})
 
 
-class TestTheInventedDuplicateToken(unittest.TestCase):
+class TestTheInventedDuplicateToken(UnitTestCase):
     """`@@DUPIGNORECOMBINE` appeared in no Tally artefact, only in our own four
     output files, and a real import answered `Created: 9,626  Altered: 9,694` -
     nine and a half thousand of a customer's own masters overwritten.
@@ -197,7 +197,7 @@ class TestTheInventedDuplicateToken(unittest.TestCase):
                     self.assertRegex(token, r"^@@DUP[A-Z]+$")
 
 
-class TestOneBadRecordLosesTheWholeFile(unittest.TestCase):
+class TestOneBadRecordLosesTheWholeFile(UnitTestCase):
     """The reason every one of these mattered enough to cost a round trip.
 
     TallyPrime stops at the first record it cannot accept, so a single refused
@@ -217,7 +217,7 @@ class TestOneBadRecordLosesTheWholeFile(unittest.TestCase):
                          [ABORTS, REJECTS, WRONG])
 
 
-class TestTheCustomersOwnUnitsWouldNowPass(unittest.TestCase):
+class TestTheCustomersOwnUnitsWouldNowPass(UnitTestCase):
     """The eight symbols our last real export actually sent, from
     `01_masters_*ce78a3.xml`: BAG Box KG Nos SET SQ.FT SQFT SqMtr.
     """
@@ -236,7 +236,7 @@ class TestTheCustomersOwnUnitsWouldNowPass(unittest.TestCase):
         self.assertNotIn("name", _checks(export))
 
 
-class TestANameThatIsOnlyPunctuation(unittest.TestCase):
+class TestANameThatIsOnlyPunctuation(UnitTestCase):
     """`....` is a real customer on a real site, and it cost a live push.
 
     Tally matches masters on `tally_key` - case and every non-alphanumeric
@@ -321,7 +321,7 @@ class TestANameThatIsOnlyPunctuation(unittest.TestCase):
                 self.assertEqual(self._hits(name), [])
 
 
-class TestALedgerThatCarriesStockMustAffectInventory(unittest.TestCase):
+class TestALedgerThatCarriesStockMustAffectInventory(UnitTestCase):
     """Every invoice-mode voucher on this engagement failed for this.
 
     Tally refuses an invoice whose ACCOUNTINGALLOCATIONS names a ledger with

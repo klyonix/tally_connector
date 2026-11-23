@@ -33,6 +33,7 @@ not, for no reason anybody chose.
 import os
 
 import frappe
+from frappe import _
 from frappe.utils import now_datetime, today
 
 from tally_connector.tally.extract import extract
@@ -68,7 +69,7 @@ def _require(roles):
         return
     if not set(roles) & set(frappe.get_roles()):
         frappe.throw(
-            f"Not permitted. This action needs one of: {', '.join(roles)}.",
+            _("Not permitted. This action needs one of: {0}.").format(", ".join(roles)),
             frappe.PermissionError,
         )
 
@@ -83,9 +84,11 @@ def _require_sync_enabled():
     """
     if not frappe.db.get_single_value("Tally Settings", "sync_enabled"):
         frappe.throw(
-            "Tally sync is switched off. Turn it back on from the switch at the "
-            "top of the Tally Connector, or in Settings.",
-            title="Sync is off",
+            _(
+                "Tally sync is switched off. Turn it back on from the switch at the "
+                "top of the Tally Connector, or in Settings."
+            ),
+            title=_("Sync is off"),
         )
 
 
@@ -103,11 +106,11 @@ def _resolve_company(company=None):
         if len(allowed) == 1:
             company = allowed[0]
     if not company:
-        frappe.throw("Choose a company to export. This site has more than one.")
+        frappe.throw(_("Choose a company to export. This site has more than one."))
     if not frappe.db.exists("Company", company):
-        frappe.throw(f"No company called {company}.")
+        frappe.throw(_("No company called {0}.").format(company))
     if not frappe.has_permission("Company", doc=company):
-        frappe.throw(f"Not permitted to export {company}.", frappe.PermissionError)
+        frappe.throw(_("Not permitted to export {0}.").format(company), frappe.PermissionError)
     return company
 
 
@@ -132,7 +135,7 @@ def _create_log(export_type, export_format, from_date=None, to_date=None, compan
     log.exported_at = now_datetime()
     log.company = company
     log.insert(ignore_permissions=True)
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep: frappe-manual-commit - the log outlives a failed export
     return log.name
 
 
@@ -145,7 +148,7 @@ def _finalize_log(log_name, records_exported, records_failed, xml_preview=None):
     if log.status == "Pending":
         log.status = "Success" if records_failed == 0 else "Partial"
     log.save(ignore_permissions=True)
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep: frappe-manual-commit - the log outlives a failed export
 
 
 def _fail_log(log_name, error):
@@ -154,7 +157,7 @@ def _fail_log(log_name, error):
         log.status = "Failed"
         log.error_log = str(error)[:4000]
         log.save(ignore_permissions=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit - the log outlives a failed export
     except Exception:
         frappe.log_error(frappe.get_traceback(), "Tally Connector: could not record failure")
 
@@ -304,70 +307,120 @@ def _run_export(key, from_date, to_date, push, company):
 
 
 @frappe.whitelist(methods=["POST"])
-def export_chart_of_accounts(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_chart_of_accounts(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("chart_of_accounts", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
 @frappe.whitelist(methods=["POST"])
-def export_parties(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_parties(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("parties", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
 @frappe.whitelist(methods=["POST"])
-def export_uoms(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_uoms(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("uoms", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
 @frappe.whitelist(methods=["POST"])
-def export_stock_items(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_stock_items(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("stock_items", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
 @frappe.whitelist(methods=["POST"])
-def export_sales_invoices(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_sales_invoices(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("sales_invoices", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
 @frappe.whitelist(methods=["POST"])
-def export_purchase_invoices(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_purchase_invoices(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("purchase_invoices", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
 @frappe.whitelist(methods=["POST"])
-def export_payment_in(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_payment_in(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("payment_in", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
 @frappe.whitelist(methods=["POST"])
-def export_payment_out(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_payment_out(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("payment_out", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
 @frappe.whitelist(methods=["POST"])
-def export_journal_entries(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_journal_entries(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("journal_entries", from_date, to_date, _truthy(push_to_tally_flag), company)
 
 
 @frappe.whitelist(methods=["POST"])
-def export_bank_transactions(from_date=None, to_date=None, push_to_tally_flag=False, company=None):
+def export_bank_transactions(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+):
     _require(EXPORT_ROLES)
     _require_sync_enabled()
     return _run_export("bank_transactions", from_date, to_date, _truthy(push_to_tally_flag), company)
@@ -583,7 +636,7 @@ def run_full_export(log_name, from_date, to_date, company, push=False,
                 reporter.summarise(findings)
                 reporter.finish("Partial", records=counts["total"],
                                 error=result["error"])
-                frappe.db.commit()
+                frappe.db.commit()  # nosemgrep: frappe-manual-commit - the polling screen reads this log
                 return result
 
             if push:
@@ -610,7 +663,7 @@ def run_full_export(log_name, from_date, to_date, company, push=False,
                     reporter.finish("Partial" if master_result.get("unknown")
                                     else "Failed",
                                     error=result["error"], records=counts["total"])
-                    frappe.db.commit()
+                    frappe.db.commit()  # nosemgrep: frappe-manual-commit - the polling screen reads this log
                     return result
                 vouchers_xml = open(vouchers_path, encoding="utf-8").read()
                 voucher_result = push_to_tally(vouchers_xml, log_name)
@@ -648,7 +701,7 @@ def run_full_export(log_name, from_date, to_date, company, push=False,
             else:
                 reporter.finish("Partial" if unresolved else "Success",
                                 records=counts["total"])
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit - the polling screen reads this log
             return result
 
     except Exception as e:
@@ -662,8 +715,14 @@ def run_full_export(log_name, from_date, to_date, company, push=False,
 
 
 @frappe.whitelist(methods=["POST"])
-def export_all(from_date=None, to_date=None, export_format="Tally XML",
-               push_to_tally_flag=False, company=None, background=None):
+def export_all(
+    from_date: str | None = None,
+    to_date: str | None = None,
+    export_format: str = "Tally XML",
+    push_to_tally_flag: bool = False,
+    company: str | None = None,
+    background: bool | None = None,
+):
     """Everything, as two files: masters then vouchers.
 
     The documents are attached to the export log and returned as URLs rather
@@ -696,7 +755,7 @@ def export_all(from_date=None, to_date=None, export_format="Tally XML",
                              "stage": "Queued", "total_records": estimate,
                              "started_at": now_datetime()},
                             update_modified=False)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit - the queued job reads this row
         return {"success": True, "queued": True, "log": log_name,
                 "company": company, "estimate": estimate,
                 "message": f"About {estimate:,} vouchers. Running in the background."}
@@ -706,7 +765,7 @@ def export_all(from_date=None, to_date=None, export_format="Tally XML",
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def export_status(log):
+def export_status(log: str):
     """Where a background export has got to, and the files if it has finished."""
     _require(EXPORT_ROLES)
     doc = frappe.get_doc("Tally Export Log", log)
@@ -879,7 +938,7 @@ def certify_export(company, report, counts=None, ask_tally=False):
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def preflight(from_date=None, to_date=None, company=None, ask_tally=False):
+def preflight(from_date: str | None = None, to_date: str | None = None, company: str | None = None, ask_tally: bool = False):
     """A dry run: generate the export, validate it, throw the files away.
 
     Nothing is written to Tally and nothing is attached to a log. The point is
@@ -933,7 +992,7 @@ def preflight(from_date=None, to_date=None, company=None, ask_tally=False):
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def verify_in_tally(from_date=None, to_date=None, company=None):
+def verify_in_tally(from_date: str | None = None, to_date: str | None = None, company: str | None = None):
     """What ERPNext sent, what Tally holds, and what is missing, by name.
 
     Tally's answer to an import says how many vouchers it created and, when it
@@ -997,7 +1056,7 @@ def verify_in_tally(from_date=None, to_date=None, company=None):
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def stale_in_tally(company=None):
+def stale_in_tally(company: str | None = None):
     """Vouchers Tally holds that ERPNext has cancelled or amended.
 
     Read-only, and read-only is the whole design. Only a submitted document is
@@ -1058,7 +1117,7 @@ def check_target_company():
 
 
 @frappe.whitelist(methods=["POST"])
-def export_single_document(doctype, docname, push_to_tally_flag=False):
+def export_single_document(doctype: str, docname: str, push_to_tally_flag: bool = False):
     """Export exactly the document named, and nothing else.
 
     It used to pass `posting_date` as both ends of a date range, so this
@@ -1068,18 +1127,18 @@ def export_single_document(doctype, docname, push_to_tally_flag=False):
     """
     _require(EXPORT_ROLES)
     if doctype not in SINGLE_DOCUMENT_SECTIONS:
-        frappe.throw(f"{doctype} cannot be exported to Tally on its own.")
+        frappe.throw(_("{0} cannot be exported to Tally on its own.").format(_(doctype)))
     if not frappe.has_permission(doctype, "read", doc=docname):
-        frappe.throw(f"Not permitted to read {doctype} {docname}.", frappe.PermissionError)
+        frappe.throw(_("Not permitted to read {0} {1}.").format(_(doctype), docname), frappe.PermissionError)
 
     doc = frappe.get_doc(doctype, docname)
     if doc.docstatus != 1:
-        frappe.throw("Only a submitted document can be exported to Tally.")
+        frappe.throw(_("Only a submitted document can be exported to Tally."))
     company = _resolve_company(getattr(doc, "company", None))
 
     xml_str, count = render_document(doctype, doc.name, str(doc.posting_date), company)
     if not count:
-        frappe.throw(f"{doctype} {docname} produced no voucher. Check that it belongs to {company}.")
+        frappe.throw(_("{0} {1} produced no voucher. Check that it belongs to {2}.").format(_(doctype), docname, company))
 
     log_name = _create_log(doctype, "Tally XML", str(doc.posting_date),
                            str(doc.posting_date), company)

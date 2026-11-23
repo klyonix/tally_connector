@@ -24,6 +24,7 @@ from decimal import Decimal
 from tally_connector.tally import extract as ex
 from tally_connector.tally import model
 from tally_connector.tally.validate import validate
+from frappe.tests import IntegrationTestCase, UnitTestCase
 
 
 class _Settings(dict):
@@ -53,7 +54,7 @@ def _sale(ledger="Sales"):
     return v
 
 
-class TestWhatTheSettingReads(unittest.TestCase):
+class TestWhatTheSettingReads(UnitTestCase):
 
     def test_an_absent_field_reads_as_sending(self):
         """A site that has not migrated must not silently change what it sends."""
@@ -66,7 +67,7 @@ class TestWhatTheSettingReads(unittest.TestCase):
         self.assertFalse(ex.sending_inventory(_Settings(send_voucher_inventory=0)))
 
 
-class TestTheFold(unittest.TestCase):
+class TestTheFold(UnitTestCase):
 
     def test_off_drops_the_items_and_keeps_the_money(self):
         out = ex._as_configured([_sale()], _Settings(send_voucher_inventory=0))
@@ -94,7 +95,7 @@ class TestTheFold(unittest.TestCase):
         self.assertEqual(len(out[0].inventory), 1)
 
 
-class TestEveryVoucherPathGoesThroughIt(unittest.TestCase):
+class TestEveryVoucherPathGoesThroughIt(IntegrationTestCase):
     """The wiring, not the fold. Removing either call site fails here."""
 
     def setUp(self):
@@ -140,7 +141,7 @@ class TestEveryVoucherPathGoesThroughIt(unittest.TestCase):
         self.assertIn("Sales", export.masters.ledger_names())
 
 
-class TestTheLossIsOnTheRecord(unittest.TestCase):
+class TestTheLossIsOnTheRecord(IntegrationTestCase):
     """accounting.py says the loss must be said out loud rather than dropped
     quietly, and until now nothing said it anywhere."""
 
@@ -198,7 +199,7 @@ class TestTheLossIsOnTheRecord(unittest.TestCase):
 
 
 
-class TestAnUpgradingSiteKeepsSendingItems(unittest.TestCase):
+class TestAnUpgradingSiteKeepsSendingItems(UnitTestCase):
     """The guard in `sending_inventory` is not what protects an existing site,
     and this is the test that says so.
 
@@ -220,7 +221,7 @@ class TestAnUpgradingSiteKeepsSendingItems(unittest.TestCase):
         self.assertIn("send_voucher_inventory", NEW_FIELDS)
 
 
-class TestNoStockMastersAreCreatedForNothing(unittest.TestCase):
+class TestNoStockMastersAreCreatedForNothing(IntegrationTestCase):
     """136 item masters, 7 groups and 6 units that no voucher names is 149
     records put into a customer's Tally for nothing."""
 

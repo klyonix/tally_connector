@@ -16,7 +16,6 @@ Pure: no site, no database, no network.
 
 from __future__ import annotations
 
-import unittest
 
 from tally_connector.tally import model
 from tally_connector.tally.resolve import (
@@ -25,6 +24,7 @@ from tally_connector.tally.resolve import (
 from tally_connector.tally.snapshot import (
     TallySnapshot, company_matches, parse_companies, parse_masters,
 )
+from frappe.tests import IntegrationTestCase, UnitTestCase
 
 LEDGERS_XML = b"""<ENVELOPE><BODY><DATA><COLLECTION>
 <LEDGER NAME="Acme Ltd"><PARENT>Sundry Debtors</PARENT><OPENINGBALANCE>-100</OPENINGBALANCE></LEDGER>
@@ -43,7 +43,7 @@ COMPANIES_XML = b"""<ENVELOPE><BODY><DATA>
 </DATA></BODY></ENVELOPE>"""
 
 
-class TestReadingWhatTallyHolds(unittest.TestCase):
+class TestReadingWhatTallyHolds(IntegrationTestCase):
 
     def test_ledgers_are_read_with_their_parents(self):
         held = parse_masters(LEDGERS_XML, "LEDGER")
@@ -76,7 +76,7 @@ class TestReadingWhatTallyHolds(unittest.TestCase):
                          ["Demo Traders Pvt Ltd", "Second Company"])
 
 
-class TestTheCompanyWeAreAboutToWriteTo(unittest.TestCase):
+class TestTheCompanyWeAreAboutToWriteTo(IntegrationTestCase):
     """`SVCURRENTCOMPANY` must match exactly, and a mismatch imports nothing
     while reporting success - which is why it is checked rather than hoped."""
 
@@ -112,7 +112,7 @@ def _masters(**parts):
     return masters
 
 
-class TestDecidingWhatToDoWithEachMaster(unittest.TestCase):
+class TestDecidingWhatToDoWithEachMaster(UnitTestCase):
 
     def setUp(self):
         self.snap = TallySnapshot(
@@ -185,7 +185,7 @@ class TestDecidingWhatToDoWithEachMaster(unittest.TestCase):
         self.assertEqual(self._action(resolution, "Sundry Debtors"), SYSTEM)
 
 
-class TestUnknownIsNotEmpty(unittest.TestCase):
+class TestUnknownIsNotEmpty(UnitTestCase):
     """The reading under which a connector overwrites a chart it cannot see."""
 
     def test_an_unanswered_collection_falls_back_to_create_and_says_so(self):
@@ -210,7 +210,7 @@ class TestUnknownIsNotEmpty(unittest.TestCase):
                             .decisions[0].action)
 
 
-class TestStockGoingIntoACompanyThatKeepsNone(unittest.TestCase):
+class TestStockGoingIntoACompanyThatKeepsNone(UnitTestCase):
     """The destination on this engagement keeps no stock, and closure cannot
     see it.
 
@@ -307,7 +307,7 @@ class TestStockGoingIntoACompanyThatKeepsNone(unittest.TestCase):
             [f for f in report.blocking if f.check == "destination inventory"], [])
 
 
-class TestAStockGroupTallyAlreadyHolds(unittest.TestCase):
+class TestAStockGroupTallyAlreadyHolds(UnitTestCase):
     """The second run, which is where this would have gone wrong.
 
     The first push sends the stock groups and the items together, so a check

@@ -90,7 +90,7 @@ def _last_exports():
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def areas(company=None, from_date=None, to_date=None):
+def areas(company: str | None = None, from_date: str | None = None, to_date: str | None = None):
     """One row per area for the Export page's two tables.
 
     Replaces ten cards with two tables on purpose: a card can hold a title and
@@ -149,7 +149,7 @@ _INCLUDE_FLAG = {
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def overview(company=None):
+def overview(company: str | None = None):
     """The Overview page in one request.
 
     One call rather than six because this is the page somebody lands on, and six

@@ -57,10 +57,12 @@ def execute():
         return
 
     meta = frappe.get_meta("Tally Settings")
+    singles = frappe.qb.DocType("Singles")
     stored = dict(
-        frappe.db.sql(
-            "select field, value from tabSingles where doctype = 'Tally Settings'"
-        )
+        frappe.qb.from_(singles)
+        .select(singles.field, singles.value)
+        .where(singles.doctype == "Tally Settings")
+        .run()
     )
 
     # No row at all means the Single has never been opened, and Frappe will
@@ -74,10 +76,8 @@ def execute():
             continue
         if stored.get(fieldname) not in (None, ""):
             continue
-        frappe.db.set_value(
-            "Tally Settings", "Tally Settings", fieldname, field.default,
+        frappe.db.set_single_value("Tally Settings", fieldname, field.default,
             update_modified=False,
         )
 
-    frappe.db.commit()
     frappe.clear_cache(doctype="Tally Settings")

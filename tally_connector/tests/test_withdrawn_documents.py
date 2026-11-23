@@ -31,7 +31,7 @@ SINV-0002" are different things to read in a report.
 from __future__ import annotations
 
 import frappe
-from frappe.tests.utils import FrappeTestCase
+from frappe.tests import IntegrationTestCase
 
 from tally_connector.utils import sync_ledger as ledger
 
@@ -81,7 +81,7 @@ def _a_customer():
             or frappe.db.get_value("Customer", {}, "name"))
 
 
-class TestFindingWhatTallyStillHolds(FrappeTestCase):
+class TestFindingWhatTallyStillHolds(IntegrationTestCase):
 
     def setUp(self):
         self.company = frappe.db.get_value("Company", {}, "name")
@@ -159,7 +159,7 @@ class TestFindingWhatTallyStillHolds(FrappeTestCase):
         self.assertIn(ledger.STALE, ledger.IN_TALLY)
 
 
-class TestOnlySubmittedRecordsAreSent(FrappeTestCase):
+class TestOnlySubmittedRecordsAreSent(IntegrationTestCase):
     """Every voucher source filters on `docstatus = 1`. That was already true
     and nothing asserted it, so a source added later could quietly send drafts.
 
@@ -220,7 +220,7 @@ class TestOnlySubmittedRecordsAreSent(FrappeTestCase):
         self.assertNotIn(doc.name, self._exported(doc.posting_date))
 
 
-class TestNothingCancelsInTally(FrappeTestCase):
+class TestNothingCancelsInTally(IntegrationTestCase):
     """Removed the day it was built. The rule it
     leaves behind: this connector adds accounting to Tally and never withdraws
     it, because withdrawing stops something somebody may be relying on and a

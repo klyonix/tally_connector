@@ -14,11 +14,11 @@ Pure: no site, no Tally.
 from __future__ import annotations
 
 import datetime
-import unittest
 from decimal import Decimal
 
 from tally_connector.tally import model
 from tally_connector.tally.accounting import what_is_lost, without_stock
+from frappe.tests import UnitTestCase
 
 
 def _sale():
@@ -34,7 +34,7 @@ def _sale():
     return v
 
 
-class TestTheAccountingIsUnchanged(unittest.TestCase):
+class TestTheAccountingIsUnchanged(UnitTestCase):
 
     def test_it_still_balances(self):
         self.assertEqual(without_stock(_sale()).imbalance(), Decimal("0"))
@@ -81,7 +81,7 @@ class TestTheAccountingIsUnchanged(unittest.TestCase):
         self.assertEqual(sales[0].amount, Decimal("506.78"))
 
 
-class TestWhatIsLostIsSaid(unittest.TestCase):
+class TestWhatIsLostIsSaid(UnitTestCase):
     """A quantity that stops crossing is a real loss, not a technicality."""
 
     def test_it_names_the_items_and_counts_the_lines(self):
@@ -91,7 +91,7 @@ class TestWhatIsLostIsSaid(unittest.TestCase):
         self.assertEqual(lost["number"], "STG-1")
 
 
-class TestItIsSafeOverEverything(unittest.TestCase):
+class TestItIsSafeOverEverything(UnitTestCase):
 
     def test_a_voucher_with_no_stock_is_returned_unchanged(self):
         v = model.Voucher(kind="Payment", date=datetime.date(2026, 3, 31),
@@ -119,7 +119,7 @@ class TestItIsSafeOverEverything(unittest.TestCase):
         self.assertIs(out, v, "it folded a line it could not account for")
         self.assertEqual(len(out.inventory), 2)
 
-class TestTheCostCentresMoveWithTheMoney(unittest.TestCase):
+class TestTheCostCentresMoveWithTheMoney(UnitTestCase):
     """Tally requires a line's allocations to total the line.
 
     This is the shape purchase invoices can have: a charge row and

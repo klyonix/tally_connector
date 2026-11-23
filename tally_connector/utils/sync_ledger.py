@@ -29,6 +29,7 @@ from __future__ import annotations
 import hashlib
 
 import frappe
+from frappe import _
 from frappe.utils import now_datetime
 
 PENDING = "Pending"
@@ -141,7 +142,7 @@ def _attempt(doc, voucher_type, voucher_number, tally_guid, payload):
 def note_outcome(doc, outcome, message="", tally_voucher_id=""):
     """What Tally said. `doc` is what `note_attempt` returned."""
     if outcome not in OUTCOMES:
-        frappe.throw(f"{outcome!r} is not a sync outcome.")
+        frappe.throw(_("{0} is not a sync outcome.").format(repr(outcome)))
     doc.outcome = outcome
     doc.message = (message or "")[:1000]
     if tally_voucher_id:

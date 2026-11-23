@@ -24,6 +24,7 @@ Two rules the design turns on:
 """
 
 import frappe
+from frappe import _
 from frappe.utils import cint, flt, now_datetime, time_diff_in_seconds
 
 from tally_connector.api.export import EXPORT_ROLES, _require
@@ -169,7 +170,7 @@ class JobReporter:
         try:
             frappe.db.set_value(self.doctype, self.name, "validation_summary",
                                 frappe.as_json(findings or []))
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit - the polling screen reads this log
         except Exception:
             frappe.log_error(frappe.get_traceback(), "Tally Connector: findings summary")
 
@@ -228,7 +229,7 @@ class JobReporter:
             # whose worker died an hour ago, and the dashboard counted both as
             # running. No Version rows are written - neither log tracks changes.
             frappe.db.set_value(self.doctype, self.name, values)
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit - the polling screen reads this log
         except Exception:
             frappe.log_error(frappe.get_traceback(), "Tally Connector: progress write")
 
@@ -357,7 +358,7 @@ def running():
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def status(name, kind="export"):
+def status(name: str, kind: str = "export"):
     """One job, by name. The polling fallback and the history detail read this."""
     _require(EXPORT_ROLES)
     doctype = "Tally Export Log" if kind == "export" else "Tally Import Log"
@@ -376,7 +377,13 @@ def _files(doctype, name):
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def history(company=None, kind=None, status_filter=None, limit=50, start=0):
+def history(
+    company: str | None = None,
+    kind: str | None = None,
+    status_filter: str | None = None,
+    limit: int = 50,
+    start: int = 0,
+):
     """Every export and import, newest first - the Sync History page.
 
     Both logs in one list because that is the question somebody actually has:
@@ -405,7 +412,7 @@ def history(company=None, kind=None, status_filter=None, limit=50, start=0):
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def detail(name, kind="export"):
+def detail(name: str, kind: str = "export"):
     """A job with everything the history page's expanded row shows."""
     _require(EXPORT_ROLES)
     row = status(name, kind)
@@ -415,7 +422,7 @@ def detail(name, kind="export"):
 
 
 @frappe.whitelist(methods=["POST"])
-def cancel(name, kind="export", reason=None):
+def cancel(name: str, kind: str = "export", reason: str | None = None):
     """Stop counting a job that is not going anywhere.
 
     Only a job that has already gone quiet can be cancelled - the threshold is
@@ -435,8 +442,10 @@ def cancel(name, kind="export", reason=None):
         return _row(doc, kind)
     if not _stalled(doc):
         frappe.throw(
-            "This job is still reporting progress. Wait for it to finish, or for "
-            f"{STALE_AFTER_SECONDS // 60} minutes of silence, before cancelling it."
+            _(
+                "This job is still reporting progress. Wait for it to finish, or for "
+                "{0} minutes of silence, before cancelling it."
+            ).format(STALE_AFTER_SECONDS // 60)
         )
     note = (reason or "").strip() or "Cancelled from the dashboard after it stopped reporting."
     frappe.db.set_value(doctype, name, {
@@ -445,12 +454,11 @@ def cancel(name, kind="export", reason=None):
         "finished_at": now_datetime(),
         "error_log": f"{note} (by {frappe.session.user})",
     })
-    frappe.db.commit()
     return _row(frappe.get_doc(doctype, name), kind)
 
 
 @frappe.whitelist(methods=["GET", "POST"])
-def notifications(since=None, limit=20):
+def notifications(since: str | None = None, limit: int = 20):
     """What has happened that somebody would want to know about.
 
     Built from the job logs rather than from Frappe's `Notification Log`,

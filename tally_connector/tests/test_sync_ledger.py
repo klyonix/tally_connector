@@ -18,7 +18,7 @@ Integration tests, because the ledger is a DocType. No HTTP happens.
 from __future__ import annotations
 
 import frappe
-from frappe.tests.utils import FrappeTestCase
+from frappe.tests import IntegrationTestCase
 
 from tally_connector.utils import sync_ledger as ledger
 
@@ -42,7 +42,7 @@ def _push(created=1, altered=0, success=True, reached=True, unknown=False,
             "response": "<RESPONSE/>"}
 
 
-class TestOneDocumentOneVoucher(FrappeTestCase):
+class TestOneDocumentOneVoucher(IntegrationTestCase):
 
     def setUp(self):
         global ERP
@@ -88,7 +88,7 @@ class TestOneDocumentOneVoucher(FrappeTestCase):
         self.assertFalse(skip)
 
 
-class TestTheAnswerNobodyGot(FrappeTestCase):
+class TestTheAnswerNobodyGot(IntegrationTestCase):
     """A request that reached Tally whose answer was lost."""
 
     def setUp(self):
@@ -131,7 +131,7 @@ class TestTheAnswerNobodyGot(FrappeTestCase):
         self.assertTrue(row.last_attempt_at)
 
 
-class TestAnAmendmentIsNotADuplicate(FrappeTestCase):
+class TestAnAmendmentIsNotADuplicate(IntegrationTestCase):
 
     def setUp(self):
         global ERP
@@ -160,7 +160,7 @@ class TestAnAmendmentIsNotADuplicate(FrappeTestCase):
                             ledger.payload_hash("<VOUCHER>2</VOUCHER>"))
 
 
-class TestTheOutcomeVocabulary(FrappeTestCase):
+class TestTheOutcomeVocabulary(IntegrationTestCase):
 
     def setUp(self):
         global ERP
@@ -196,7 +196,7 @@ class TestTheOutcomeVocabulary(FrappeTestCase):
             row.delete()
 
 
-class TestASendIsActuallyRecorded(FrappeTestCase):
+class TestASendIsActuallyRecorded(IntegrationTestCase):
     """`record_sent` was written, tested, and called from nowhere.
 
     So nothing was ever written to the sync ledger, `unsent_vouchers` went on
@@ -291,7 +291,7 @@ class TestASendIsActuallyRecorded(FrappeTestCase):
         self.assertEqual(out["created"], 1)
 
 
-class TestTheLedgerSurvivesARunThatStops(FrappeTestCase):
+class TestTheLedgerSurvivesARunThatStops(IntegrationTestCase):
     """A push of 26,657 vouchers was stopped part way and the ledger had
     written nothing.
 
@@ -333,7 +333,7 @@ class TestTheLedgerSurvivesARunThatStops(FrappeTestCase):
         return v
 
 
-class TestAPendingVoucherIsNeverResent(FrappeTestCase):
+class TestAPendingVoucherIsNeverResent(IntegrationTestCase):
     """191 purchase vouchers were posted two and three times into a
     customer's books, and this is the rule that makes that impossible.
 

@@ -12,10 +12,9 @@ Pure where it can be. The two that read the site are marked.
 
 from __future__ import annotations
 
-import unittest
 
 import frappe
-from frappe.tests.utils import FrappeTestCase
+from frappe.tests import IntegrationTestCase, UnitTestCase
 
 from tally_connector.tally import model
 from tally_connector.tally.extract import unit_name, units_in_use
@@ -24,7 +23,7 @@ from tally_connector.tally.validate import ABORTS, validate
 from tally_connector.utils.ledgers import TALLY_RESERVED_GROUPS
 
 
-class TestEveryFindingCanReachItsRecord(unittest.TestCase):
+class TestEveryFindingCanReachItsRecord(UnitTestCase):
     """Five of the nine link keys were a different spelling of the check they
     were meant to match - `duplicates` against `duplicate`, `bill_wise` against
     `bill-wise`, `dates` against `date`, and so on. Those findings silently
@@ -47,7 +46,7 @@ class TestEveryFindingCanReachItsRecord(unittest.TestCase):
             f"It emits {sorted(emitted)}")
 
 
-class TestAValidatorThatCanActuallyFire(unittest.TestCase):
+class TestAValidatorThatCanActuallyFire(UnitTestCase):
     """`_check_currency` read `masters.currencies` through a `getattr` default,
     and `Masters` had no such field - so the check was written against
     something that did not exist and behaved as though everything collided."""
@@ -74,7 +73,7 @@ class TestAValidatorThatCanActuallyFire(unittest.TestCase):
             [f for f in validate(export).findings if f.check == "currency"], [])
 
 
-class TestTheReaderSeesWhatTheWriterWrote(unittest.TestCase):
+class TestTheReaderSeesWhatTheWriterWrote(UnitTestCase):
     """The validator reads a model re-parsed from the written bytes, so a field
     the reader discards is invisible to every check that reads it. `GUID` was
     discarded, so the finding about a missing GUID could not fire on the
@@ -101,7 +100,7 @@ class TestTheReaderSeesWhatTheWriterWrote(unittest.TestCase):
         self.assertTrue(read.vouchers[0].guid)
 
 
-class TestTheUnitFallbackRespectsWhatIsTaken(FrappeTestCase):
+class TestTheUnitFallbackRespectsWhatIsTaken(IntegrationTestCase):
     """Reads the site. The fallback for a name that is not a UOM record skipped
     collision resolution, so it could mint a symbol a registered UOM already
     owned - and `extract_masters` then dropped the duplicate silently, leaving
@@ -122,7 +121,7 @@ class TestTheUnitFallbackRespectsWhatIsTaken(FrappeTestCase):
         self.assertNotIn(unit_name("///"), taken)
 
 
-class TestUnitsInUseHonoursItsArguments(FrappeTestCase):
+class TestUnitsInUseHonoursItsArguments(IntegrationTestCase):
     """Reads the site. It took three arguments and used none, while its own
     docstring said "the invoice lines in range" - so on a site with several
     companies it put one company's units into another company's Tally."""
@@ -175,7 +174,7 @@ class TestUnitsInUseHonoursItsArguments(FrappeTestCase):
                                                    "1900-01-02"))
 
 
-class TestTheReservedGroupListMatchesTally(unittest.TestCase):
+class TestTheReservedGroupListMatchesTally(UnitTestCase):
     """Verified against TallyPrime's own declaration.
 
     A real company's masters export carries `RESERVEDNAME` on the groups Tally

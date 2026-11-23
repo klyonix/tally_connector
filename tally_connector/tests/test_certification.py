@@ -19,13 +19,13 @@ Pure: no site, no network.
 
 from __future__ import annotations
 
-import unittest
 
 from tally_connector.tally.certify import (
     BLOCKED, FAIL, PASS, READY, UNKNOWN, WARN, certify,
 )
 from tally_connector.tally.snapshot import TallySnapshot, parse_companies
 from tally_connector.tally.validate import ABORTS, Finding, Report, WRONG
+from frappe.tests import IntegrationTestCase, UnitTestCase
 
 COMPANIES = b"""<ENVELOPE><COMPANY NAME="Demo Traders Pvt Ltd"/></ENVELOPE>"""
 
@@ -47,7 +47,7 @@ def _section(cert, name):
     return next(s for s in cert.sections if s.name == name)
 
 
-class TestTheVerdictMeansSomething(unittest.TestCase):
+class TestTheVerdictMeansSomething(UnitTestCase):
 
     def test_a_clean_export_is_ready(self):
         cert = _cert()
@@ -102,7 +102,7 @@ class TestTheVerdictMeansSomething(unittest.TestCase):
         self.assertEqual(cert.verdict, BLOCKED)
 
 
-class TestAnUnaskedQuestionIsNotAPassedOne(unittest.TestCase):
+class TestAnUnaskedQuestionIsNotAPassedOne(UnitTestCase):
 
     def test_without_tally_the_dependent_sections_are_unknown(self):
         cert = _cert()
@@ -121,7 +121,7 @@ class TestAnUnaskedQuestionIsNotAPassedOne(unittest.TestCase):
         self.assertEqual(cert.verdict, READY)
 
 
-class TestTheCompanyWeWouldWriteTo(unittest.TestCase):
+class TestTheCompanyWeWouldWriteTo(IntegrationTestCase):
 
     def test_a_matching_company_passes(self):
         snap = TallySnapshot(companies=parse_companies(COMPANIES))
@@ -143,7 +143,7 @@ class TestTheCompanyWeWouldWriteTo(unittest.TestCase):
         self.assertEqual(cert.verdict, READY)
 
 
-class TestResolutionReachesTheReport(unittest.TestCase):
+class TestResolutionReachesTheReport(UnitTestCase):
 
     def setUp(self):
         from tally_connector.tally import model

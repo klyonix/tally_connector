@@ -29,6 +29,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import frappe
+from frappe import _
 from frappe.utils import flt
 
 from tally_connector.tally.plan import erp_key
@@ -227,7 +228,7 @@ def ensure_parties(plan, company, with_addresses=True, tick=None, commit_every=2
                 frappe.log_error(frappe.get_traceback(),
                                  "Tally Connector: party address")
         if commit_every and seen % commit_every == 0:
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit - a long import commits in batches
 
     return made, mapping
 
@@ -311,8 +312,12 @@ def load_opening(company, plan, as_on, accounts, parties=None, tick=None,
     rows = opening_rows(company, plan, accounts, parties)
     temporary = _temporary_account(company)
     if not temporary:
-        frappe.throw("This company has no Temporary Opening account, which is "
-                     "where each batch of opening balances is balanced through.")
+        frappe.throw(
+            _(
+                "This company has no Temporary Opening account, which is "
+                "where each batch of opening balances is balanced through."
+            )
+        )
 
     made, profit = [], Decimal("0")
     for start in range(0, len(rows), OPENING_CHUNK):
@@ -364,12 +369,15 @@ def load_opening(company, plan, as_on, accounts, parties=None, tick=None,
             # in the ledgers whatever this function would otherwise report.
             # Better to stop here than to hand back a count that means nothing.
             frappe.throw(
-                f"Opening entry {entry.name} was queued for a background worker "
-                f"rather than posted, so its {len(chunk)} balances are not in "
-                "the ledgers. That happens above a hundred rows an entry.")
+                _(
+                    "Opening entry {0} was queued for a background worker "
+                    "rather than posted, so its {1} balances are not in "
+                    "the ledgers. That happens above a hundred rows an entry."
+                ).format(entry.name, len(chunk))
+            )
         made.append(entry.name)
         if commit:
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit - a long import commits in batches
 
     return {"entries": made, "rows": len(rows), "profit_and_loss": profit}
 
@@ -397,13 +405,17 @@ def reconcile(company, plan, as_on, accounts, parties=None,
                 break
         else:
             wanted[equity] = profit_and_loss
-    rows = frappe.db.sql("""
-        SELECT account, party_type, party,
-               SUM(credit) - SUM(debit) AS balance
-        FROM `tabGL Entry`
-        WHERE company = %s AND is_cancelled = 0 AND posting_date <= %s
-        GROUP BY account, party_type, party
-    """, (company, as_on), as_dict=True)
+    from frappe.query_builder.functions import Sum
+
+    gl = frappe.qb.DocType("GL Entry")
+    rows = (
+        frappe.qb.from_(gl)
+        .select(gl.account, gl.party_type, gl.party,
+                (Sum(gl.credit) - Sum(gl.debit)).as_("balance"))
+        .where((gl.company == company) & (gl.is_cancelled == 0)
+               & (gl.posting_date <= as_on))
+        .groupby(gl.account, gl.party_type, gl.party)
+    ).run(as_dict=True)
 
     got = {}
     for row in rows:

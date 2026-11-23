@@ -1,10 +1,61 @@
 {
+ "actions": [],
+ "creation": "2026-10-16 14:10:58.358091",
  "doctype": "DocType",
- "name": "Tally Settings",
- "module": "Tally Connector",
- "issingle": 1,
- "is_submittable": 0,
- "track_changes": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "connection_section",
+  "sync_enabled",
+  "tally_host",
+  "tally_port",
+  "erpnext_company",
+  "company_name_in_tally",
+  "cb1",
+  "last_sync_at",
+  "export_section",
+  "default_export_format",
+  "import_duplicate_behaviour",
+  "voucher_import_action",
+  "send_voucher_guid",
+  "send_voucher_inventory",
+  "export_from_date",
+  "cb2",
+  "include_sales_invoice",
+  "include_purchase_invoice",
+  "include_payment_entry",
+  "include_journal_entry",
+  "include_bank_transaction",
+  "include_chart_of_accounts",
+  "include_parties",
+  "include_stock_items",
+  "include_stock_groups",
+  "include_godowns",
+  "include_uoms",
+  "tally_section",
+  "sales_voucher_type",
+  "purchase_voucher_type",
+  "receipt_voucher_type",
+  "payment_voucher_type",
+  "journal_voucher_type",
+  "contra_voucher_type",
+  "credit_note_voucher_type",
+  "debit_note_voucher_type",
+  "sales_ledger",
+  "purchase_ledger",
+  "tds_deductible_ledger",
+  "cb3",
+  "sundry_debtors_ledger",
+  "sundry_creditors_ledger",
+  "employee_ledger_group",
+  "suspense_ledger",
+  "gst_output_ledger",
+  "gst_input_ledger",
+  "sb1",
+  "enable_auto_sync",
+  "auto_sync_interval",
+  "cb4",
+  "bank_recon_master"
+ ],
  "fields": [
   {
    "fieldname": "connection_section",
@@ -12,41 +63,44 @@
    "label": "Tally Connection"
   },
   {
+   "default": "1",
+   "description": "Off stops every export and import. Nothing is queued and nothing runs.",
    "fieldname": "sync_enabled",
    "fieldtype": "Check",
-   "label": "Sync Enabled",
-   "default": "1",
-   "description": "Off stops every export and import. Nothing is queued and nothing runs."
+   "label": "Sync Enabled"
   },
   {
+   "default": "localhost",
+   "description": "Hostname or IP where Tally Prime is running",
    "fieldname": "tally_host",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Tally Host",
-   "default": "localhost",
-   "reqd": 1,
-   "description": "Hostname or IP where Tally Prime is running"
+   "reqd": 1
   },
   {
+   "default": "9000",
+   "description": "Default Tally XML Server port is 9000",
    "fieldname": "tally_port",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "Tally XML Port",
-   "default": 9000,
-   "reqd": 1,
-   "description": "Default Tally XML Server port is 9000"
+   "reqd": 1
   },
   {
+   "description": "The company whose books go to the Tally company below. Scheduled sync uses this and nothing else.",
    "fieldname": "erpnext_company",
    "fieldtype": "Link",
-   "options": "Company",
    "label": "ERPNext Company",
-   "description": "The company whose books go to the Tally company below. Scheduled sync uses this and nothing else."
+   "options": "Company"
   },
   {
+   "description": "Must exactly match the company name in your Tally Prime data",
    "fieldname": "company_name_in_tally",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Company Name in Tally",
-   "reqd": 1,
-   "description": "Must exactly match the company name in your Tally Prime data"
+   "reqd": 1
   },
   {
    "fieldname": "cb1",
@@ -64,119 +118,119 @@
    "label": "Export Settings"
   },
   {
+   "default": "Tally XML",
    "fieldname": "default_export_format",
    "fieldtype": "Select",
    "label": "Default Export Format",
-   "options": "Tally XML\nJSON\nExcel",
-   "default": "Tally XML"
+   "options": "Tally XML\nJSON\nExcel"
   },
   {
+   "default": "Leave it alone",
+   "description": "What Tally does when an imported ledger or item is already there.",
    "fieldname": "import_duplicate_behaviour",
    "fieldtype": "Select",
    "label": "If a master already exists",
-   "options": "Leave it alone\nReplace it\nCombine balances",
-   "default": "Leave it alone",
-   "description": "What Tally does when an imported ledger or item is already there."
+   "options": "Leave it alone\nReplace it\nCombine balances"
   },
   {
+   "default": "Create",
+   "description": "Create adds vouchers. Alter updates ones Tally already has.",
    "fieldname": "voucher_import_action",
    "fieldtype": "Select",
    "label": "Voucher import mode",
-   "options": "Create\nAlter",
-   "default": "Create",
-   "description": "Create adds vouchers. Alter updates ones Tally already has."
+   "options": "Create\nAlter"
   },
   {
+   "default": "0",
+   "description": "Off until proven against your Tally. A GUID lets TallyPrime's overwrite-on-same-GUID option recognise a re-import, but ours is not in Tally's own format and a live Tally crashed while importing vouchers carrying it.",
    "fieldname": "send_voucher_guid",
    "fieldtype": "Check",
-   "default": "0",
-   "label": "Send a GUID on each voucher",
-   "description": "Off until proven against your Tally. A GUID lets TallyPrime's overwrite-on-same-GUID option recognise a re-import, but ours is not in Tally's own format and a live Tally crashed while importing vouchers carrying it."
+   "label": "Send a GUID on each voucher"
   },
   {
+   "default": "1",
+   "description": "On, an invoice carries its items, quantities and rates. Off, each item's value is folded onto the ledger it already posted to and the items are dropped: the accounting is identical and Tally's stock summary stays empty.",
    "fieldname": "send_voucher_inventory",
    "fieldtype": "Check",
-   "label": "Send item detail on vouchers",
-   "default": "1",
-   "description": "On, an invoice carries its items, quantities and rates. Off, each item's value is folded onto the ledger it already posted to and the items are dropped: the accounting is identical and Tally's stock summary stays empty."
+   "label": "Send item detail on vouchers"
   },
   {
+   "description": "Leave blank to export all records",
    "fieldname": "export_from_date",
    "fieldtype": "Date",
-   "label": "Default Export From Date",
-   "description": "Leave blank to export all records"
+   "label": "Default Export From Date"
   },
   {
    "fieldname": "cb2",
    "fieldtype": "Column Break"
   },
   {
+   "default": "1",
    "fieldname": "include_sales_invoice",
    "fieldtype": "Check",
-   "label": "Include Sales Invoices",
-   "default": 1
+   "label": "Include Sales Invoices"
   },
   {
+   "default": "1",
    "fieldname": "include_purchase_invoice",
    "fieldtype": "Check",
-   "label": "Include Purchase Invoices",
-   "default": 1
+   "label": "Include Purchase Invoices"
   },
   {
+   "default": "1",
    "fieldname": "include_payment_entry",
    "fieldtype": "Check",
-   "label": "Include Payment Entries",
-   "default": 1
+   "label": "Include Payment Entries"
   },
   {
+   "default": "1",
    "fieldname": "include_journal_entry",
    "fieldtype": "Check",
-   "label": "Include Journal Entries",
-   "default": 1
+   "label": "Include Journal Entries"
   },
   {
+   "default": "1",
    "fieldname": "include_bank_transaction",
    "fieldtype": "Check",
-   "label": "Include Bank Transactions",
-   "default": 1
+   "label": "Include Bank Transactions"
   },
   {
+   "default": "1",
    "fieldname": "include_chart_of_accounts",
    "fieldtype": "Check",
-   "label": "Include Chart of Accounts",
-   "default": 1
+   "label": "Include Chart of Accounts"
   },
   {
+   "default": "1",
    "fieldname": "include_parties",
    "fieldtype": "Check",
-   "label": "Include Customers & Suppliers",
-   "default": 1
+   "label": "Include Customers & Suppliers"
   },
   {
+   "default": "1",
    "fieldname": "include_stock_items",
    "fieldtype": "Check",
-   "label": "Include Stock Items",
-   "default": 1
+   "label": "Include Stock Items"
   },
   {
+   "default": "1",
+   "description": "Send item groups to Tally as stock groups.",
    "fieldname": "include_stock_groups",
    "fieldtype": "Check",
-   "label": "Include Stock Groups",
-   "default": 1,
-   "description": "Send item groups to Tally as stock groups."
+   "label": "Include Stock Groups"
   },
   {
+   "default": "0",
+   "description": "Send warehouses to Tally as godowns. Needs multiple godowns enabled there.",
    "fieldname": "include_godowns",
    "fieldtype": "Check",
-   "label": "Include Godowns",
-   "default": 0,
-   "description": "Send warehouses to Tally as godowns. Needs multiple godowns enabled there."
+   "label": "Include Godowns"
   },
   {
+   "default": "1",
    "fieldname": "include_uoms",
    "fieldtype": "Check",
-   "label": "Include Units of Measure",
-   "default": 1
+   "label": "Include Units of Measure"
   },
   {
    "fieldname": "tally_section",
@@ -184,116 +238,116 @@
    "label": "Tally Mapping"
   },
   {
+   "default": "Sales",
+   "description": "Name of the Sales voucher type in Tally",
    "fieldname": "sales_voucher_type",
    "fieldtype": "Data",
-   "label": "Sales Voucher Type in Tally",
-   "default": "Sales",
-   "description": "Name of the Sales voucher type in Tally"
+   "label": "Sales Voucher Type in Tally"
   },
   {
+   "default": "Purchase",
    "fieldname": "purchase_voucher_type",
    "fieldtype": "Data",
-   "label": "Purchase Voucher Type in Tally",
-   "default": "Purchase"
+   "label": "Purchase Voucher Type in Tally"
   },
   {
+   "default": "Receipt",
    "fieldname": "receipt_voucher_type",
    "fieldtype": "Data",
-   "label": "Receipt Voucher Type in Tally",
-   "default": "Receipt"
+   "label": "Receipt Voucher Type in Tally"
   },
   {
+   "default": "Payment",
    "fieldname": "payment_voucher_type",
    "fieldtype": "Data",
-   "label": "Payment Voucher Type in Tally",
-   "default": "Payment"
+   "label": "Payment Voucher Type in Tally"
   },
   {
+   "default": "Journal",
    "fieldname": "journal_voucher_type",
    "fieldtype": "Data",
-   "label": "Journal Voucher Type in Tally",
-   "default": "Journal"
+   "label": "Journal Voucher Type in Tally"
   },
   {
+   "default": "Contra",
+   "description": "Tally voucher type for transfers between your own cash and bank accounts.",
    "fieldname": "contra_voucher_type",
    "fieldtype": "Data",
-   "label": "Contra Voucher Type",
-   "default": "Contra",
-   "description": "Tally voucher type for transfers between your own cash and bank accounts."
+   "label": "Contra Voucher Type"
   },
   {
+   "default": "Credit Note",
+   "description": "Tally voucher type for a sales return.",
    "fieldname": "credit_note_voucher_type",
    "fieldtype": "Data",
-   "label": "Credit Note Voucher Type",
-   "default": "Credit Note",
-   "description": "Tally voucher type for a sales return."
+   "label": "Credit Note Voucher Type"
   },
   {
+   "default": "Debit Note",
+   "description": "Tally voucher type for a purchase return.",
    "fieldname": "debit_note_voucher_type",
    "fieldtype": "Data",
-   "label": "Debit Note Voucher Type",
-   "default": "Debit Note",
-   "description": "Tally voucher type for a purchase return."
+   "label": "Debit Note Voucher Type"
   },
   {
+   "default": "Sales",
    "fieldname": "sales_ledger",
    "fieldtype": "Data",
-   "label": "Sales Ledger",
-   "default": "Sales"
+   "label": "Sales Ledger"
   },
   {
+   "default": "Purchase",
    "fieldname": "purchase_ledger",
    "fieldtype": "Data",
-   "label": "Purchase Ledger",
-   "default": "Purchase"
+   "label": "Purchase Ledger"
   },
   {
+   "default": "TDS-Deductible",
    "fieldname": "tds_deductible_ledger",
    "fieldtype": "Data",
-   "label": "TDS Deductible Ledger",
-   "default": "TDS-Deductible"
+   "label": "TDS Deductible Ledger"
   },
   {
    "fieldname": "cb3",
    "fieldtype": "Column Break"
   },
   {
+   "default": "Sundry Debtors",
    "fieldname": "sundry_debtors_ledger",
    "fieldtype": "Data",
-   "label": "Sundry Debtors Ledger",
-   "default": "Sundry Debtors"
+   "label": "Sundry Debtors Ledger"
   },
   {
+   "default": "Sundry Creditors",
    "fieldname": "sundry_creditors_ledger",
    "fieldtype": "Data",
-   "label": "Sundry Creditors Ledger",
-   "default": "Sundry Creditors"
+   "label": "Sundry Creditors Ledger"
   },
   {
+   "default": "Sundry Creditors",
+   "description": "Tally group for employee ledgers.",
    "fieldname": "employee_ledger_group",
    "fieldtype": "Data",
-   "label": "Employee Ledger Group",
-   "default": "Sundry Creditors",
-   "description": "Tally group for employee ledgers."
+   "label": "Employee Ledger Group"
   },
   {
+   "default": "Suspense Account",
+   "description": "Ledger for the unreconciled side of a bank line.",
    "fieldname": "suspense_ledger",
    "fieldtype": "Data",
-   "label": "Suspense Ledger",
-   "default": "Suspense Account",
-   "description": "Ledger for the unreconciled side of a bank line."
+   "label": "Suspense Ledger"
   },
   {
+   "default": "Output GST",
    "fieldname": "gst_output_ledger",
    "fieldtype": "Data",
-   "label": "GST Output Tax Ledger",
-   "default": "Output GST"
+   "label": "GST Output Tax Ledger"
   },
   {
+   "default": "Input GST",
    "fieldname": "gst_input_ledger",
    "fieldtype": "Data",
-   "label": "GST Input Tax Ledger",
-   "default": "Input GST"
+   "label": "GST Input Tax Ledger"
   },
   {
    "fieldname": "sb1",
@@ -301,41 +355,55 @@
    "label": "Automation & Sync"
   },
   {
+   "default": "0",
    "fieldname": "enable_auto_sync",
    "fieldtype": "Check",
    "label": "Enable Auto Sync"
   },
   {
+   "default": "Daily",
+   "depends_on": "eval:doc.enable_auto_sync == 1",
    "fieldname": "auto_sync_interval",
    "fieldtype": "Select",
    "label": "Auto Sync Interval",
-   "options": "Hourly\nTwice a Day\nDaily",
-   "default": "Daily",
-   "depends_on": "eval:doc.enable_auto_sync == 1"
+   "options": "Hourly\nTwice a Day\nDaily"
   },
   {
    "fieldname": "cb4",
    "fieldtype": "Column Break"
   },
   {
+   "default": "ERPNext",
+   "description": "Choose which system acts as the master for Bank Reconciliation clearance dates.",
    "fieldname": "bank_recon_master",
    "fieldtype": "Select",
    "label": "Bank Reconciliation Master",
-   "options": "ERPNext\nTally",
-   "default": "ERPNext",
-   "description": "Choose which system acts as the master for Bank Reconciliation clearance dates."
+   "options": "ERPNext\nTally"
   }
  ],
+ "issingle": 1,
+ "link_display_mode": "Search",
+ "links": [],
+ "modified": "2026-11-23 12:08:39.180602",
+ "modified_by": "Administrator",
+ "module": "Tally Connector",
+ "name": "Tally Settings",
+ "owner": "Administrator",
  "permissions": [
   {
-   "role": "System Manager",
    "read": 1,
+   "role": "System Manager",
    "write": 1
   },
   {
-   "role": "Accounts Manager",
    "read": 1,
+   "role": "Accounts Manager",
    "write": 1
   }
- ]
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
 }

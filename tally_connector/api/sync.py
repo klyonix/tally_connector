@@ -95,7 +95,7 @@ def _run_sync():
     finally:
         settings.last_sync_at = now_datetime()
         settings.save(ignore_permissions=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit - the scheduled sync records when it last ran
 
 
 @frappe.whitelist(methods=["GET", "POST"])
