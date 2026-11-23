@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ENVELOPE>
+  <HEADER>
+    <TALLYREQUEST>Import Data</TALLYREQUEST>
+  </HEADER>
+  <BODY>
+    <IMPORTDATA>
+      <REQUESTDESC>
+        <REPORTNAME>All Masters</REPORTNAME>
+        <STATICVARIABLES>
+          <SVCURRENTCOMPANY>Demo Traders Pvt Ltd</SVCURRENTCOMPANY>
+        </STATICVARIABLES>
+      </REQUESTDESC>
+      <REQUESTDATA>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <UNIT NAME="Nos" ACTION="Create">
+            <NAME>Nos</NAME>
+            <ISSIMPLEUNIT>Yes</ISSIMPLEUNIT>
+            <FORMALNAME>Numbers</FORMALNAME>
+            <DECIMALPLACES>2</DECIMALPLACES>
+          </UNIT>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <STOCKGROUP NAME="Finished Goods" ACTION="Create">
+            <NAME>Finished Goods</NAME>
+          </STOCKGROUP>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <STOCKITEM NAME="Widget" ACTION="Create">
+            <NAME>Widget</NAME>
+            <PARENT>Finished Goods</PARENT>
+            <BASEUNITS>Nos</BASEUNITS>
+            <DESCRIPTION/>
+            <GSTTYPEOFSUPPLY>Goods</GSTTYPEOFSUPPLY>
+            <GSTAPPLICABLE>Applicable</GSTAPPLICABLE>
+            <GSTDETAILS.LIST>
+              <APPLICABLEFROM>20170401</APPLICABLEFROM>
+              <TAXABILITY>Taxable</TAXABILITY>
+            </GSTDETAILS.LIST>
+            <HSNDETAILS.LIST>
+              <APPLICABLEFROM>20170401</APPLICABLEFROM>
+              <SRCOFHSNDETAILS>Specify Details Here</SRCOFHSNDETAILS>
+              <HSNCODE>84819090</HSNCODE>
+            </HSNDETAILS.LIST>
+            <ISDELETED>No</ISDELETED>
+          </STOCKITEM>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Sales" ACTION="Create">
+            <NAME>Sales</NAME>
+            <PARENT>Sales Accounts</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>Yes</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Output CGST" ACTION="Create">
+            <NAME>Output CGST</NAME>
+            <PARENT>Duties &amp; Taxes</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+            <TAXTYPE>GST</TAXTYPE>
+            <GSTDUTYHEAD>CGST</GSTDUTYHEAD>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Output SGST" ACTION="Create">
+            <NAME>Output SGST</NAME>
+            <PARENT>Duties &amp; Taxes</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+            <TAXTYPE>GST</TAXTYPE>
+            <GSTDUTYHEAD>SGST</GSTDUTYHEAD>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Output IGST" ACTION="Create">
+            <NAME>Output IGST</NAME>
+            <PARENT>Duties &amp; Taxes</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+            <TAXTYPE>GST</TAXTYPE>
+            <GSTDUTYHEAD>IGST</GSTDUTYHEAD>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Purchase" ACTION="Create">
+            <NAME>Purchase</NAME>
+            <PARENT>Purchase Accounts</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Input CGST" ACTION="Create">
+            <NAME>Input CGST</NAME>
+            <PARENT>Duties &amp; Taxes</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+            <TAXTYPE>GST</TAXTYPE>
+            <GSTDUTYHEAD>CGST</GSTDUTYHEAD>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Input SGST" ACTION="Create">
+            <NAME>Input SGST</NAME>
+            <PARENT>Duties &amp; Taxes</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+            <TAXTYPE>GST</TAXTYPE>
+            <GSTDUTYHEAD>SGST</GSTDUTYHEAD>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="HDFC Bank" ACTION="Create">
+            <NAME>HDFC Bank</NAME>
+            <PARENT>Bank Accounts</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="ICICI Bank" ACTION="Create">
+            <NAME>ICICI Bank</NAME>
+            <PARENT>Bank Accounts</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="TDS Payable" ACTION="Create">
+            <NAME>TDS Payable</NAME>
+            <PARENT>Duties &amp; Taxes</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Rent" ACTION="Create">
+            <NAME>Rent</NAME>
+            <PARENT>Indirect Expenses</PARENT>
+            <ISBILLWISEON>No</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Acme Industries" ACTION="Create">
+            <NAME>Acme Industries</NAME>
+            <PARENT>Sundry Debtors</PARENT>
+            <ISBILLWISEON>Yes</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+            <PRIORSTATENAME>Tamil Nadu</PRIORSTATENAME>
+            <COUNTRYOFRESIDENCE>India</COUNTRYOFRESIDENCE>
+            <LEDGSTREGDETAILS.LIST>
+              <APPLICABLEFROM>20170401</APPLICABLEFROM>
+              <GSTREGISTRATIONTYPE>Regular</GSTREGISTRATIONTYPE>
+              <PLACEOFSUPPLY>Tamil Nadu</PLACEOFSUPPLY>
+              <GSTIN>33AABCU9603R1ZM</GSTIN>
+            </LEDGSTREGDETAILS.LIST>
+            <LEDMAILINGDETAILS.LIST>
+              <APPLICABLEFROM>20170401</APPLICABLEFROM>
+              <MAILINGNAME>Acme Industries</MAILINGNAME>
+              <ADDRESS.LIST TYPE="String">
+                <ADDRESS>12 Mill Road</ADDRESS>
+              </ADDRESS.LIST>
+              <STATE>Tamil Nadu</STATE>
+              <COUNTRY>India</COUNTRY>
+              <PINCODE>641001</PINCODE>
+            </LEDMAILINGDETAILS.LIST>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="Northgate Supplies" ACTION="Create">
+            <NAME>Northgate Supplies</NAME>
+            <PARENT>Sundry Creditors</PARENT>
+            <ISBILLWISEON>Yes</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+            <PRIORSTATENAME>Maharashtra</PRIORSTATENAME>
+            <COUNTRYOFRESIDENCE>India</COUNTRYOFRESIDENCE>
+            <LEDGSTREGDETAILS.LIST>
+              <APPLICABLEFROM>20170401</APPLICABLEFROM>
+              <GSTREGISTRATIONTYPE>Regular</GSTREGISTRATIONTYPE>
+              <PLACEOFSUPPLY>Maharashtra</PLACEOFSUPPLY>
+              <GSTIN>27AAQCN4821H1Z6</GSTIN>
+            </LEDGSTREGDETAILS.LIST>
+            <LEDMAILINGDETAILS.LIST>
+              <APPLICABLEFROM>20170401</APPLICABLEFROM>
+              <MAILINGNAME>Northgate Supplies</MAILINGNAME>
+              <ADDRESS.LIST TYPE="String">
+                <ADDRESS>9 Harbour Street</ADDRESS>
+              </ADDRESS.LIST>
+              <STATE>Maharashtra</STATE>
+              <COUNTRY>India</COUNTRY>
+              <PINCODE>400001</PINCODE>
+            </LEDMAILINGDETAILS.LIST>
+          </LEDGER>
+        </TALLYMESSAGE>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <LEDGER NAME="A &amp; B Enterprises" ACTION="Create">
+            <NAME>A &amp; B Enterprises</NAME>
+            <PARENT>Sundry Debtors</PARENT>
+            <ISBILLWISEON>Yes</ISBILLWISEON>
+            <AFFECTSSTOCK>No</AFFECTSSTOCK>
+            <ISCOSTCENTRESON>No</ISCOSTCENTRESON>
+          </LEDGER>
+        </TALLYMESSAGE>
+      </REQUESTDATA>
+    </IMPORTDATA>
+  </BODY>
+</ENVELOPE>

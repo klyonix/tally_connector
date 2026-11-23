@@ -1,0 +1,165 @@
+{
+  "company": "Demo Traders Pvt Ltd",
+  "masters": {
+    "units": [
+      {
+        "symbol": "Nos",
+        "formal_name": "Numbers",
+        "decimal_places": 2
+      }
+    ],
+    "stock_groups": [
+      {
+        "name": "Finished Goods"
+      }
+    ],
+    "stock_items": [
+      {
+        "name": "Widget",
+        "parent": "Finished Goods",
+        "base_unit": "Nos",
+        "hsn_code": "84819090",
+        "taxability": "Taxable"
+      }
+    ],
+    "groups": [],
+    "ledgers": [
+      {
+        "name": "Sales",
+        "parent": "Sales Accounts",
+        "affects_stock": true
+      },
+      {
+        "name": "Output CGST",
+        "parent": "Duties & Taxes",
+        "tax_type": "GST",
+        "duty_head": "CGST"
+      },
+      {
+        "name": "Output SGST",
+        "parent": "Duties & Taxes",
+        "tax_type": "GST",
+        "duty_head": "SGST"
+      },
+      {
+        "name": "Output IGST",
+        "parent": "Duties & Taxes",
+        "tax_type": "GST",
+        "duty_head": "IGST"
+      },
+      {
+        "name": "Purchase",
+        "parent": "Purchase Accounts"
+      },
+      {
+        "name": "Input CGST",
+        "parent": "Duties & Taxes",
+        "tax_type": "GST",
+        "duty_head": "CGST"
+      },
+      {
+        "name": "Input SGST",
+        "parent": "Duties & Taxes",
+        "tax_type": "GST",
+        "duty_head": "SGST"
+      },
+      {
+        "name": "HDFC Bank",
+        "parent": "Bank Accounts"
+      },
+      {
+        "name": "ICICI Bank",
+        "parent": "Bank Accounts"
+      },
+      {
+        "name": "TDS Payable",
+        "parent": "Duties & Taxes"
+      },
+      {
+        "name": "Rent",
+        "parent": "Indirect Expenses"
+      },
+      {
+        "name": "Acme Industries",
+        "parent": "Sundry Debtors",
+        "bill_wise": true,
+        "address": {
+          "lines": [
+            "12 Mill Road"
+          ],
+          "state": "Tamil Nadu",
+          "country": "India",
+          "pincode": "641001",
+          "gstin": "33AABCU9603R1ZM",
+          "registration_type": "Regular"
+        }
+      },
+      {
+        "name": "Northgate Supplies",
+        "parent": "Sundry Creditors",
+        "bill_wise": true,
+        "address": {
+          "lines": [
+            "9 Harbour Street"
+          ],
+          "state": "Maharashtra",
+          "country": "India",
+          "pincode": "400001",
+          "gstin": "27AAQCN4821H1Z6",
+          "registration_type": "Regular"
+        }
+      },
+      {
+        "name": "A & B Enterprises",
+        "parent": "Sundry Debtors",
+        "bill_wise": true
+      }
+    ]
+  },
+  "vouchers": [
+    {
+      "kind": "Sales",
+      "number": "SINV-0002",
+      "date": "2026-04-09",
+      "remote_id": "SINV-0002",
+      "party": "Northgate Supplies",
+      "party_address": {
+        "lines": [
+          "9 Harbour Street"
+        ],
+        "state": "Maharashtra",
+        "country": "India",
+        "gstin": "27AAQCN4821H1Z6",
+        "registration_type": "Regular"
+      },
+      "inventory": [
+        {
+          "item": "Widget",
+          "quantity": "5",
+          "unit": "Nos",
+          "rate": "1000.00",
+          "amount": "5000.00",
+          "ledger": "Sales"
+        }
+      ],
+      "lines": [
+        {
+          "ledger": "Northgate Supplies",
+          "amount": "-5900.00",
+          "is_party": true,
+          "bill_refs": [
+            {
+              "name": "SINV-0002",
+              "kind": "New Ref",
+              "amount": "-5900.00"
+            }
+          ]
+        },
+        {
+          "ledger": "Output IGST",
+          "amount": "900.00"
+        }
+      ]
+    }
+  ]
+}

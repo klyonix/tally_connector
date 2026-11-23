@@ -1,0 +1,6 @@
+Hand-authored scenarios. Plain JSON on purpose: a scenario can be written, read
+and reviewed without a database anywhere near it, and the whole Map -> Validate
+-> Render path can be exercised offline.
+
+Each file pins down either a defect this connector has actually shipped or a
+structure Tally validates.

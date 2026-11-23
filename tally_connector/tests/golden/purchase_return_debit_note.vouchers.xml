@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ENVELOPE>
+  <HEADER>
+    <TALLYREQUEST>Import Data</TALLYREQUEST>
+  </HEADER>
+  <BODY>
+    <IMPORTDATA>
+      <REQUESTDESC>
+        <REPORTNAME>Vouchers</REPORTNAME>
+        <STATICVARIABLES>
+          <SVCURRENTCOMPANY>Demo Traders Pvt Ltd</SVCURRENTCOMPANY>
+        </STATICVARIABLES>
+      </REQUESTDESC>
+      <REQUESTDATA>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <VOUCHER VCHTYPE="Debit Note" ACTION="Create" OBJVIEW="Invoice Voucher View">
+            <DATE>20260502</DATE>
+            <EFFECTIVEDATE>20260502</EFFECTIVEDATE>
+            <VOUCHERTYPENAME>Debit Note</VOUCHERTYPENAME>
+            <VOUCHERNUMBER>PRET-0001</VOUCHERNUMBER>
+            <PARTYLEDGERNAME>Northgate Supplies</PARTYLEDGERNAME>
+            <PARTYNAME>Northgate Supplies</PARTYNAME>
+            <BASICBUYERNAME>Northgate Supplies</BASICBUYERNAME>
+            <NARRATION>Three widgets returned to supplier</NARRATION>
+            <ISINVOICE>Yes</ISINVOICE>
+            <PERSISTEDVIEW>Invoice Voucher View</PERSISTEDVIEW>
+            <ALLINVENTORYENTRIES.LIST>
+              <STOCKITEMNAME>Widget</STOCKITEMNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <RATE>800.00/Nos</RATE>
+              <AMOUNT>2400.00</AMOUNT>
+              <ACTUALQTY>3.00 Nos</ACTUALQTY>
+              <BILLEDQTY>3.00 Nos</BILLEDQTY>
+              <ACCOUNTINGALLOCATIONS.LIST>
+                <LEDGERNAME>Purchase</LEDGERNAME>
+                <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+                <AMOUNT>2400.00</AMOUNT>
+              </ACCOUNTINGALLOCATIONS.LIST>
+            </ALLINVENTORYENTRIES.LIST>
+            <LEDGERENTRIES.LIST>
+              <LEDGERNAME>Northgate Supplies</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+              <ISPARTYLEDGER>Yes</ISPARTYLEDGER>
+              <AMOUNT>-2832.00</AMOUNT>
+              <BILLALLOCATIONS.LIST>
+                <NAME>PINV-0001</NAME>
+                <BILLTYPE>Agst Ref</BILLTYPE>
+                <AMOUNT>-2832.00</AMOUNT>
+              </BILLALLOCATIONS.LIST>
+            </LEDGERENTRIES.LIST>
+            <LEDGERENTRIES.LIST>
+              <LEDGERNAME>Input CGST</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <AMOUNT>216.00</AMOUNT>
+            </LEDGERENTRIES.LIST>
+            <LEDGERENTRIES.LIST>
+              <LEDGERNAME>Input SGST</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <AMOUNT>216.00</AMOUNT>
+            </LEDGERENTRIES.LIST>
+          </VOUCHER>
+        </TALLYMESSAGE>
+      </REQUESTDATA>
+    </IMPORTDATA>
+  </BODY>
+</ENVELOPE>

@@ -1,0 +1,208 @@
+{
+  "company": "Demo Traders Pvt Ltd",
+  "masters": {
+    "units": [
+      {
+        "symbol": "Nos",
+        "formal_name": "Numbers",
+        "decimal_places": 2
+      }
+    ],
+    "stock_groups": [
+      {
+        "name": "Finished Goods"
+      }
+    ],
+    "stock_items": [
+      {
+        "name": "Widget",
+        "parent": "Finished Goods",
+        "base_unit": "Nos",
+        "hsn_code": "84819090"
+      }
+    ],
+    "groups": [],
+    "ledgers": [
+      {
+        "name": "Sales",
+        "parent": "Sales Accounts",
+        "affects_stock": true
+      },
+      {
+        "name": "Output CGST",
+        "parent": "Duties & Taxes"
+      },
+      {
+        "name": "Output SGST",
+        "parent": "Duties & Taxes"
+      },
+      {
+        "name": "Output IGST",
+        "parent": "Duties & Taxes"
+      },
+      {
+        "name": "Purchase",
+        "parent": "Purchase Accounts"
+      },
+      {
+        "name": "Input CGST",
+        "parent": "Duties & Taxes"
+      },
+      {
+        "name": "Input SGST",
+        "parent": "Duties & Taxes"
+      },
+      {
+        "name": "HDFC Bank",
+        "parent": "Bank Accounts"
+      },
+      {
+        "name": "ICICI Bank",
+        "parent": "Bank Accounts"
+      },
+      {
+        "name": "TDS Payable",
+        "parent": "Duties & Taxes"
+      },
+      {
+        "name": "Rent",
+        "parent": "Indirect Expenses"
+      },
+      {
+        "name": "Acme Industries",
+        "parent": "Sundry Debtors",
+        "bill_wise": true,
+        "address": {
+          "lines": [
+            "12 Mill Road"
+          ],
+          "state": "Tamil Nadu",
+          "country": "India",
+          "pincode": "641001",
+          "gstin": "33AABCU9603R1ZM",
+          "registration_type": "Regular"
+        }
+      },
+      {
+        "name": "Northgate Supplies",
+        "parent": "Sundry Creditors",
+        "bill_wise": true,
+        "address": {
+          "lines": [
+            "9 Harbour Street"
+          ],
+          "state": "Maharashtra",
+          "country": "India",
+          "pincode": "400001",
+          "gstin": "27AAQCN4821H1Z6",
+          "registration_type": "Regular"
+        }
+      },
+      {
+        "name": "A & B Enterprises",
+        "parent": "Sundry Debtors",
+        "bill_wise": true
+      }
+    ]
+  },
+  "vouchers": [
+    {
+      "kind": "Sales",
+      "number": "SINV-0001",
+      "date": "2026-04-08",
+      "remote_id": "SINV-0001",
+      "party": "Acme Industries",
+      "narration": "Sale of 10 widgets",
+      "party_address": {
+        "lines": [
+          "12 Mill Road"
+        ],
+        "state": "Tamil Nadu",
+        "country": "India",
+        "gstin": "33AABCU9603R1ZM",
+        "registration_type": "Regular"
+      },
+      "inventory": [
+        {
+          "item": "Widget",
+          "quantity": "10",
+          "unit": "Nos",
+          "rate": "1000.00",
+          "amount": "10000.00",
+          "ledger": "Sales"
+        }
+      ],
+      "lines": [
+        {
+          "ledger": "Acme Industries",
+          "amount": "-11800.00",
+          "is_party": true,
+          "bill_refs": [
+            {
+              "name": "SINV-0001",
+              "kind": "New Ref",
+              "amount": "-11800.00"
+            }
+          ]
+        },
+        {
+          "ledger": "Output CGST",
+          "amount": "900.00"
+        },
+        {
+          "ledger": "Output SGST",
+          "amount": "900.00"
+        }
+      ]
+    },
+    {
+      "kind": "Sales",
+      "number": "SINV-0002",
+      "date": "2026-04-08",
+      "remote_id": "SINV-0001",
+      "party": "Acme Industries",
+      "narration": "Sale of 10 widgets",
+      "party_address": {
+        "lines": [
+          "12 Mill Road"
+        ],
+        "state": "Tamil Nadu",
+        "country": "India",
+        "gstin": "33AABCU9603R1ZM",
+        "registration_type": "Regular"
+      },
+      "inventory": [
+        {
+          "item": "Widget",
+          "quantity": "10",
+          "unit": "Nos",
+          "rate": "1000.00",
+          "amount": "10000.00",
+          "ledger": "Sales"
+        }
+      ],
+      "lines": [
+        {
+          "ledger": "Acme Industries",
+          "amount": "-11800.00",
+          "is_party": true,
+          "bill_refs": [
+            {
+              "name": "SINV-0001",
+              "kind": "New Ref",
+              "amount": "-11800.00"
+            }
+          ]
+        },
+        {
+          "ledger": "Output CGST",
+          "amount": "900.00"
+        },
+        {
+          "ledger": "Output SGST",
+          "amount": "900.00"
+        }
+      ]
+    }
+  ]
+}

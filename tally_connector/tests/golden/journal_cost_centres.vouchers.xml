@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ENVELOPE>
+  <HEADER>
+    <TALLYREQUEST>Import Data</TALLYREQUEST>
+  </HEADER>
+  <BODY>
+    <IMPORTDATA>
+      <REQUESTDESC>
+        <REPORTNAME>Vouchers</REPORTNAME>
+        <STATICVARIABLES>
+          <SVCURRENTCOMPANY>Demo Traders Pvt Ltd</SVCURRENTCOMPANY>
+        </STATICVARIABLES>
+      </REQUESTDESC>
+      <REQUESTDATA>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <VOUCHER VCHTYPE="Journal" ACTION="Create" OBJVIEW="Accounting Voucher View">
+            <DATE>20260531</DATE>
+            <EFFECTIVEDATE>20260531</EFFECTIVEDATE>
+            <VOUCHERTYPENAME>Journal</VOUCHERTYPENAME>
+            <VOUCHERNUMBER>JV-0001</VOUCHERNUMBER>
+            <NARRATION>Rent accrued and apportioned across branches</NARRATION>
+            <PERSISTEDVIEW>Accounting Voucher View</PERSISTEDVIEW>
+            <ALLLEDGERENTRIES.LIST>
+              <LEDGERNAME>Rent</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+              <AMOUNT>-30000.00</AMOUNT>
+              <COSTCENTREALLOCATIONS.LIST>
+                <NAME>Coimbatore</NAME>
+                <AMOUNT>-18000.00</AMOUNT>
+              </COSTCENTREALLOCATIONS.LIST>
+              <COSTCENTREALLOCATIONS.LIST>
+                <NAME>Chennai</NAME>
+                <AMOUNT>-12000.00</AMOUNT>
+              </COSTCENTREALLOCATIONS.LIST>
+            </ALLLEDGERENTRIES.LIST>
+            <ALLLEDGERENTRIES.LIST>
+              <LEDGERNAME>Outstanding Expenses</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <AMOUNT>30000.00</AMOUNT>
+            </ALLLEDGERENTRIES.LIST>
+          </VOUCHER>
+        </TALLYMESSAGE>
+      </REQUESTDATA>
+    </IMPORTDATA>
+  </BODY>
+</ENVELOPE>

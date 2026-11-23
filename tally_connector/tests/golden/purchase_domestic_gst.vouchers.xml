@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ENVELOPE>
+  <HEADER>
+    <TALLYREQUEST>Import Data</TALLYREQUEST>
+  </HEADER>
+  <BODY>
+    <IMPORTDATA>
+      <REQUESTDESC>
+        <REPORTNAME>Vouchers</REPORTNAME>
+        <STATICVARIABLES>
+          <SVCURRENTCOMPANY>Demo Traders Pvt Ltd</SVCURRENTCOMPANY>
+        </STATICVARIABLES>
+      </REQUESTDESC>
+      <REQUESTDATA>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <VOUCHER VCHTYPE="Purchase" ACTION="Create" OBJVIEW="Invoice Voucher View">
+            <DATE>20260412</DATE>
+            <EFFECTIVEDATE>20260412</EFFECTIVEDATE>
+            <VOUCHERTYPENAME>Purchase</VOUCHERTYPENAME>
+            <VOUCHERNUMBER>PINV-0001</VOUCHERNUMBER>
+            <PARTYLEDGERNAME>Northgate Supplies</PARTYLEDGERNAME>
+            <PARTYNAME>Northgate Supplies</PARTYNAME>
+            <BASICBUYERNAME>Northgate Supplies</BASICBUYERNAME>
+            <COUNTRYOFRESIDENCE>India</COUNTRYOFRESIDENCE>
+            <STATENAME>Maharashtra</STATENAME>
+            <PLACEOFSUPPLY>Maharashtra</PLACEOFSUPPLY>
+            <PARTYGSTIN>27AAQCN4821H1Z6</PARTYGSTIN>
+            <GSTREGISTRATIONTYPE>Regular</GSTREGISTRATIONTYPE>
+            <BASICBUYERADDRESS.LIST TYPE="String">
+              <BASICBUYERADDRESS>9 Harbour Street</BASICBUYERADDRESS>
+            </BASICBUYERADDRESS.LIST>
+            <NARRATION>Ten widgets received</NARRATION>
+            <ISINVOICE>Yes</ISINVOICE>
+            <PERSISTEDVIEW>Invoice Voucher View</PERSISTEDVIEW>
+            <ALLINVENTORYENTRIES.LIST>
+              <STOCKITEMNAME>Widget</STOCKITEMNAME>
+              <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+              <RATE>800.00/Nos</RATE>
+              <AMOUNT>-8000.00</AMOUNT>
+              <ACTUALQTY>10.00 Nos</ACTUALQTY>
+              <BILLEDQTY>10.00 Nos</BILLEDQTY>
+              <ACCOUNTINGALLOCATIONS.LIST>
+                <LEDGERNAME>Purchase</LEDGERNAME>
+                <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+                <AMOUNT>-8000.00</AMOUNT>
+              </ACCOUNTINGALLOCATIONS.LIST>
+            </ALLINVENTORYENTRIES.LIST>
+            <LEDGERENTRIES.LIST>
+              <LEDGERNAME>Northgate Supplies</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <ISPARTYLEDGER>Yes</ISPARTYLEDGER>
+              <AMOUNT>9440.00</AMOUNT>
+              <BILLALLOCATIONS.LIST>
+                <NAME>PINV-0001</NAME>
+                <BILLTYPE>New Ref</BILLTYPE>
+                <AMOUNT>9440.00</AMOUNT>
+              </BILLALLOCATIONS.LIST>
+            </LEDGERENTRIES.LIST>
+            <LEDGERENTRIES.LIST>
+              <LEDGERNAME>Input CGST</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+              <AMOUNT>-720.00</AMOUNT>
+            </LEDGERENTRIES.LIST>
+            <LEDGERENTRIES.LIST>
+              <LEDGERNAME>Input SGST</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+              <AMOUNT>-720.00</AMOUNT>
+            </LEDGERENTRIES.LIST>
+          </VOUCHER>
+        </TALLYMESSAGE>
+      </REQUESTDATA>
+    </IMPORTDATA>
+  </BODY>
+</ENVELOPE>

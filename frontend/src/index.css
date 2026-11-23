@@ -1,0 +1,61 @@
+@import 'frappe-ui/style.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Branding is done here, once, as tokens.
+ *
+ * frappe-ui draws everything through semantic CSS variables - `--ink-gray-8`,
+ * `--surface-gray-2`, `--outline-gray-1`. Repainting components with brand
+ * classes would mean touching every component and drifting from the Desk on the
+ * next upgrade; overriding the accent tokens brands the whole application from
+ * one place and leaves the neutrals, which are what make it read as Frappe.
+ */
+:root {
+  --kx-brand-50: #f1faf8;
+  --kx-brand-100: #dcf2ed;
+  --kx-brand-200: #b6e4da;
+  --kx-brand-500: #2a9585;
+  --kx-brand-600: #1b786b;
+  --kx-brand-700: #166057;
+
+  /* Selected states across frappe-ui land on these two. A soft teal wash rather
+     than a saturated fill: this is a dense application and a strong block of
+     colour on every active row is noise, not hierarchy. */
+  --surface-selected: var(--kx-brand-100);
+  --surface-menu-bar: #fbfcfc;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Focus follows the brand rather than the browser default, and stays visible.
+   An enterprise tool is operated from the keyboard more than it is designed
+   for, and an invisible focus ring is an accessibility defect first. */
+:where(a, button, [role='button'], input, select, textarea):focus-visible {
+  outline: 2px solid var(--kx-brand-500);
+  outline-offset: 1px;
+}
+
+/* Numbers that sit in columns line up. Applied by class rather than globally,
+   because tabular figures are wrong in running prose. */
+.kx-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The progress bar frappe-ui draws is grey. This is the one component whose
+   colour carries meaning - it is the thing somebody stares at - so it is
+   branded explicitly and the state colours below override it. */
+.kx-progress > div > div {
+  background-color: var(--kx-brand-500);
+  transition: width 240ms ease-out;
+}
+.kx-progress--failed > div > div {
+  background-color: #e03636;
+}
+.kx-progress--done > div > div {
+  background-color: #278f5e;
+}

@@ -1,0 +1,4 @@
+Scenarios that are deliberately wrong, one defect each.
+
+A validator is only worth having if it fails on the things it claims to
+catch. These are not rendered to golden files - they exist to be caught.

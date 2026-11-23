@@ -1,0 +1,16 @@
+This file exists so that `tally_connector/public/` is present in a fresh clone.
+
+frappe/build.py only creates the /assets/<app> symlink for an app whose public
+directory already exists at the moment `bench build` runs:
+
+    if os.path.isdir(app_assets):
+        symlinks[app_assets] = os.path.join(assets_path, app_name)
+
+Everything under public/ here is Vite output and is gitignored, so without this
+file the directory does not exist in a clone. If a deployment runs `bench build`
+before the frontend build has produced public/frontend - which is what Frappe
+Cloud does - no symlink is ever created, every /assets/tally_connector/... URL
+404s, and the dashboard renders as a blank page with no error on the server side.
+
+The CRM and Helpdesk apps carry the same file for the same reason; Helpdesk
+carries nothing else under public/ at all.

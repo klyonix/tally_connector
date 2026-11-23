@@ -1,0 +1,189 @@
+{
+ "autoname": "TC-.YYYY.-.MM.-.#####",
+ "doctype": "DocType",
+ "fields": [
+  {
+   "fieldname": "export_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Export Type",
+   "options": "Sales Invoice\nPurchase Invoice\nPayment Entry\nJournal Entry\nBank Transaction\nChart of Accounts\nParties\nUOMs\nStock Items\nFull Export",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nRunning\nSuccess\nFailed\nPartial\nCancelled"
+  },
+  {
+   "fieldname": "export_format",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Format",
+   "options": "Tally XML\nJSON\nExcel"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date"
+  },
+  {
+   "fieldname": "records_exported",
+   "fieldtype": "Int",
+   "label": "Records Exported",
+   "read_only": 1
+  },
+  {
+   "fieldname": "records_failed",
+   "fieldtype": "Int",
+   "label": "Records Failed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "exported_at",
+   "fieldtype": "Datetime",
+   "label": "Exported At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tally_response",
+   "fieldtype": "Small Text",
+   "label": "Tally Response",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error_log",
+   "fieldtype": "Code",
+   "label": "Error Log",
+   "options": "Text",
+   "read_only": 1
+  },
+  {
+   "fieldname": "xml_preview",
+   "fieldtype": "Code",
+   "label": "XML Preview (first 4000 chars)",
+   "options": "XML",
+   "read_only": 1
+  },
+  {
+   "fieldname": "file_attachment",
+   "fieldtype": "Attach",
+   "label": "Exported File"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "progress_section",
+   "fieldtype": "Section Break",
+   "label": "Progress"
+  },
+  {
+   "fieldname": "job_id",
+   "fieldtype": "Data",
+   "label": "Background Job",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stage",
+   "fieldtype": "Data",
+   "label": "Stage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stages_reached",
+   "fieldtype": "Small Text",
+   "label": "Stages Reached",
+   "read_only": 1
+  },
+  {
+   "fieldname": "progress",
+   "fieldtype": "Percent",
+   "label": "Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pcb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "processed",
+   "fieldtype": "Int",
+   "label": "Processed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_records",
+   "fieldtype": "Int",
+   "label": "Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "warnings",
+   "fieldtype": "Int",
+   "label": "Warnings",
+   "read_only": 1
+  },
+  {
+   "fieldname": "validation_summary",
+   "fieldtype": "Code",
+   "label": "Validation Findings",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pcb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "label": "Started At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finished_at",
+   "fieldtype": "Datetime",
+   "label": "Finished At",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 0,
+ "issingle": 0,
+ "module": "Tally Connector",
+ "name": "Tally Export Log",
+ "permissions": [
+  {
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts User"
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "title_field": "export_type",
+ "track_changes": 0
+}

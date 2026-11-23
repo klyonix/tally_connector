@@ -1,0 +1,32 @@
+__pycache__/
+*.py[cod]
+node_modules
+.DS_Store
+
+# Vite build output for the dashboard SPA.
+#
+# Ignored the way the CRM and Helpdesk apps ignore theirs. What makes that safe
+# is the `package.json` at the app root: `bench get-app` runs
+# `yarn install --check-files` there, `postinstall` builds both, and the route
+# then has a template to render. Without that root package.json a fresh clone
+# has the route rule and no page to render, which is a 404 on the dashboard.
+# `tests/test_installable.py` holds the manifest so the two cannot come apart.
+tally_connector/public/frontend/
+tally_connector/www/tally_connector.html
+frontend/auto-imports.d.ts
+
+# The root package.json declares no dependencies of its own - it exists so that
+# `bench get-app` has a postinstall hook to run - so its lockfile carries no
+# information and only ever shows up as noise in a diff.
+/yarn.lock
+
+# Throwaway diagnostics.
+#
+# A one-off script that reproduces a defect has to live inside the app to be
+# importable by `bench execute`, which puts it right where `git add -A` will
+# sweep it up. That has now happened four times, and each was caught by the
+# pre-push scan rather than by remembering - twice after the push had already
+# gone. Remembering is not the fix; the pattern is.
+#
+# Anything worth keeping becomes a test, which is where it can fail on its own.
+tally_connector/_*.py

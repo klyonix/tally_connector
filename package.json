@@ -1,0 +1,13 @@
+{
+  "name": "tally_connector",
+  "version": "1.0.0",
+  "description": "ERPNext to Tally Prime XML Export & Sync",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && yarn dev",
+    "build": "cd frontend && yarn install --frozen-lockfile && yarn build",
+    "postinstall": "cd frontend && yarn install"
+  },
+  "author": "KlyONIX Tech",
+  "license": "MIT"
+}

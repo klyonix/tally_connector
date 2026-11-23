@@ -1,0 +1,211 @@
+{
+  "company": "Demo Traders Pvt Ltd",
+  "masters": {
+    "units": [
+      {
+        "symbol": "Square Meter",
+        "formal_name": "Square Meter",
+        "decimal_places": 2
+      }
+    ],
+    "stock_groups": [
+      {
+        "name": "Finished Goods"
+      }
+    ],
+    "stock_items": [
+      {
+        "name": "Widget",
+        "parent": "Finished Goods",
+        "base_unit": "Square Meter",
+        "hsn_code": "84819090",
+        "gst_applicable": true,
+        "type_of_supply": "Goods",
+        "taxability": "Taxable"
+      }
+    ],
+    "ledgers": [
+      {
+        "name": "Sales",
+        "parent": "Sales Accounts",
+        "bill_wise": false,
+        "affects_stock": true,
+        "cost_centres_on": false
+      },
+      {
+        "name": "Output CGST",
+        "parent": "Duties & Taxes",
+        "bill_wise": false,
+        "affects_stock": false,
+        "tax_type": "GST",
+        "duty_head": "CGST",
+        "cost_centres_on": false
+      },
+      {
+        "name": "Output SGST",
+        "parent": "Duties & Taxes",
+        "bill_wise": false,
+        "affects_stock": false,
+        "tax_type": "GST",
+        "duty_head": "SGST",
+        "cost_centres_on": false
+      },
+      {
+        "name": "Output IGST",
+        "parent": "Duties & Taxes",
+        "bill_wise": false,
+        "affects_stock": false,
+        "tax_type": "GST",
+        "duty_head": "IGST",
+        "cost_centres_on": false
+      },
+      {
+        "name": "Purchase",
+        "parent": "Purchase Accounts",
+        "bill_wise": false,
+        "affects_stock": false,
+        "cost_centres_on": false
+      },
+      {
+        "name": "Input CGST",
+        "parent": "Duties & Taxes",
+        "bill_wise": false,
+        "affects_stock": false,
+        "tax_type": "GST",
+        "duty_head": "CGST",
+        "cost_centres_on": false
+      },
+      {
+        "name": "Input SGST",
+        "parent": "Duties & Taxes",
+        "bill_wise": false,
+        "affects_stock": false,
+        "tax_type": "GST",
+        "duty_head": "SGST",
+        "cost_centres_on": false
+      },
+      {
+        "name": "HDFC Bank",
+        "parent": "Bank Accounts",
+        "bill_wise": false,
+        "affects_stock": false,
+        "cost_centres_on": false
+      },
+      {
+        "name": "ICICI Bank",
+        "parent": "Bank Accounts",
+        "bill_wise": false,
+        "affects_stock": false,
+        "cost_centres_on": false
+      },
+      {
+        "name": "TDS Payable",
+        "parent": "Duties & Taxes",
+        "bill_wise": false,
+        "affects_stock": false,
+        "cost_centres_on": false
+      },
+      {
+        "name": "Rent",
+        "parent": "Indirect Expenses",
+        "bill_wise": false,
+        "affects_stock": false,
+        "cost_centres_on": false
+      },
+      {
+        "name": "Acme Industries",
+        "parent": "Sundry Debtors",
+        "bill_wise": true,
+        "affects_stock": false,
+        "address": {
+          "lines": [
+            "12 Mill Road"
+          ],
+          "state": "Tamil Nadu",
+          "country": "India",
+          "pincode": "641001",
+          "gstin": "33AABCU9603R1ZM",
+          "registration_type": "Regular"
+        },
+        "cost_centres_on": false
+      },
+      {
+        "name": "Northgate Supplies",
+        "parent": "Sundry Creditors",
+        "bill_wise": true,
+        "affects_stock": false,
+        "address": {
+          "lines": [
+            "9 Harbour Street"
+          ],
+          "state": "Maharashtra",
+          "country": "India",
+          "pincode": "400001",
+          "gstin": "27AAQCN4821H1Z6",
+          "registration_type": "Regular"
+        },
+        "cost_centres_on": false
+      },
+      {
+        "name": "A & B Enterprises",
+        "parent": "Sundry Debtors",
+        "bill_wise": true,
+        "affects_stock": false,
+        "cost_centres_on": false
+      }
+    ]
+  },
+  "vouchers": [
+    {
+      "kind": "Sales",
+      "number": "SINV-0001",
+      "date": "2026-04-08",
+      "narration": "Sale of 10 widgets",
+      "party": "Acme Industries",
+      "party_address": {
+        "lines": [
+          "12 Mill Road"
+        ],
+        "state": "Tamil Nadu",
+        "country": "India",
+        "gstin": "33AABCU9603R1ZM",
+        "registration_type": "Regular"
+      },
+      "lines": [
+        {
+          "ledger": "Acme Industries",
+          "amount": "-11800.00",
+          "is_party": true,
+          "bill_refs": [
+            {
+              "name": "SINV-0001",
+              "kind": "New Ref",
+              "amount": "-11800.00"
+            }
+          ]
+        },
+        {
+          "ledger": "Output CGST",
+          "amount": "900.00",
+          "is_party": false
+        },
+        {
+          "ledger": "Output SGST",
+          "amount": "900.00",
+          "is_party": false
+        }
+      ],
+      "inventory": [
+        {
+          "item": "Widget",
+          "quantity": "10.00",
+          "unit": "Square Meter",
+          "rate": "1000.00",
+          "amount": "10000.00",
+          "ledger": "Sales"
+        }
+      ],
+      "remote_id": "SINV-0001"
+    }
+  ]
+}

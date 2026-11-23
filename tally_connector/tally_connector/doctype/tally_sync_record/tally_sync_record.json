@@ -1,0 +1,179 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "hash",
+ "creation": "2026-09-20 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 0,
+ "engine": "InnoDB",
+ "field_order": [
+  "identity_section",
+  "source_doctype",
+  "source_name",
+  "erpnext_company",
+  "column_break_identity",
+  "tally_company",
+  "voucher_type",
+  "voucher_number",
+  "outcome_section",
+  "outcome",
+  "last_attempt_at",
+  "attempts",
+  "column_break_outcome",
+  "tally_guid",
+  "tally_voucher_id",
+  "payload_hash",
+  "detail_section",
+  "message"
+ ],
+ "fields": [
+  {
+   "fieldname": "identity_section",
+   "fieldtype": "Section Break",
+   "label": "Identity"
+  },
+  {
+   "fieldname": "source_doctype",
+   "fieldtype": "Data",
+   "label": "ERPNext DocType",
+   "reqd": 1,
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_name",
+   "fieldtype": "Data",
+   "label": "ERPNext Document",
+   "reqd": 1,
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "erpnext_company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "ERPNext Company",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_identity",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tally_company",
+   "fieldtype": "Data",
+   "label": "Tally Company",
+   "read_only": 1,
+   "description": "The destination. The same document synced to two Tally companies is two records."
+  },
+  {
+   "fieldname": "voucher_type",
+   "fieldtype": "Data",
+   "label": "Voucher Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "voucher_number",
+   "fieldtype": "Data",
+   "label": "Voucher Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "outcome_section",
+   "fieldtype": "Section Break",
+   "label": "Outcome"
+  },
+  {
+   "fieldname": "outcome",
+   "fieldtype": "Select",
+   "label": "Outcome",
+   "in_list_view": 1,
+   "reqd": 1,
+   "options": "Pending\nCreated\nAltered\nExisting\nStale\nConflict\nFailed\nUnknown Result",
+   "default": "Pending",
+   "description": "Unknown Result means the request reached Tally and its answer could not be read; it is never retried without checking Tally first. Stale means ERPNext has cancelled or amended the document and Tally still holds the voucher - settle that in Tally."
+  },
+  {
+   "fieldname": "last_attempt_at",
+   "fieldtype": "Datetime",
+   "label": "Last Attempt",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attempts",
+   "fieldtype": "Int",
+   "label": "Attempts",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_outcome",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tally_guid",
+   "fieldtype": "Data",
+   "label": "Tally GUID",
+   "read_only": 1,
+   "description": "Derived from the ERPNext document, so it is the same on every export of it."
+  },
+  {
+   "fieldname": "tally_voucher_id",
+   "fieldtype": "Data",
+   "label": "Tally Voucher ID",
+   "read_only": 1,
+   "description": "LASTVCHID from Tally's reply, where it gave one."
+  },
+  {
+   "fieldname": "payload_hash",
+   "fieldtype": "Data",
+   "label": "Payload Hash",
+   "read_only": 1,
+   "description": "What was last sent. A document that has not changed is not sent again."
+  },
+  {
+   "fieldname": "detail_section",
+   "fieldtype": "Section Break",
+   "label": "Detail"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-09-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Tally Connector",
+ "name": "Tally Sync Record",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 0,
+   "create": 0,
+   "delete": 0,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "report": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ENVELOPE>
+  <HEADER>
+    <TALLYREQUEST>Import Data</TALLYREQUEST>
+  </HEADER>
+  <BODY>
+    <IMPORTDATA>
+      <REQUESTDESC>
+        <REPORTNAME>Vouchers</REPORTNAME>
+        <STATICVARIABLES>
+          <SVCURRENTCOMPANY>Demo Traders Pvt Ltd</SVCURRENTCOMPANY>
+        </STATICVARIABLES>
+      </REQUESTDESC>
+      <REQUESTDATA>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <VOUCHER VCHTYPE="Sales" ACTION="Create" OBJVIEW="Invoice Voucher View">
+            <DATE>20260409</DATE>
+            <EFFECTIVEDATE>20260409</EFFECTIVEDATE>
+            <VOUCHERTYPENAME>Sales</VOUCHERTYPENAME>
+            <VOUCHERNUMBER>SINV-0002</VOUCHERNUMBER>
+            <PARTYLEDGERNAME>Northgate Supplies</PARTYLEDGERNAME>
+            <PARTYNAME>Northgate Supplies</PARTYNAME>
+            <BASICBUYERNAME>Northgate Supplies</BASICBUYERNAME>
+            <COUNTRYOFRESIDENCE>India</COUNTRYOFRESIDENCE>
+            <STATENAME>Maharashtra</STATENAME>
+            <PLACEOFSUPPLY>Maharashtra</PLACEOFSUPPLY>
+            <PARTYGSTIN>27AAQCN4821H1Z6</PARTYGSTIN>
+            <GSTREGISTRATIONTYPE>Regular</GSTREGISTRATIONTYPE>
+            <BASICBUYERADDRESS.LIST TYPE="String">
+              <BASICBUYERADDRESS>9 Harbour Street</BASICBUYERADDRESS>
+            </BASICBUYERADDRESS.LIST>
+            <NARRATION/>
+            <ISINVOICE>Yes</ISINVOICE>
+            <PERSISTEDVIEW>Invoice Voucher View</PERSISTEDVIEW>
+            <ALLINVENTORYENTRIES.LIST>
+              <STOCKITEMNAME>Widget</STOCKITEMNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <RATE>1000.00/Nos</RATE>
+              <AMOUNT>5000.00</AMOUNT>
+              <ACTUALQTY>5.00 Nos</ACTUALQTY>
+              <BILLEDQTY>5.00 Nos</BILLEDQTY>
+              <ACCOUNTINGALLOCATIONS.LIST>
+                <LEDGERNAME>Sales</LEDGERNAME>
+                <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+                <AMOUNT>5000.00</AMOUNT>
+              </ACCOUNTINGALLOCATIONS.LIST>
+            </ALLINVENTORYENTRIES.LIST>
+            <LEDGERENTRIES.LIST>
+              <LEDGERNAME>Northgate Supplies</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+              <ISPARTYLEDGER>Yes</ISPARTYLEDGER>
+              <AMOUNT>-5900.00</AMOUNT>
+              <BILLALLOCATIONS.LIST>
+                <NAME>SINV-0002</NAME>
+                <BILLTYPE>New Ref</BILLTYPE>
+                <AMOUNT>-5900.00</AMOUNT>
+              </BILLALLOCATIONS.LIST>
+            </LEDGERENTRIES.LIST>
+            <LEDGERENTRIES.LIST>
+              <LEDGERNAME>Output IGST</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <AMOUNT>900.00</AMOUNT>
+            </LEDGERENTRIES.LIST>
+          </VOUCHER>
+        </TALLYMESSAGE>
+      </REQUESTDATA>
+    </IMPORTDATA>
+  </BODY>
+</ENVELOPE>
