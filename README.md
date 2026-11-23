@@ -118,6 +118,14 @@ a refused import.
 if the masters fail rather than sending vouchers into a company that has no
 ledgers for them.
 
+A push that could not connect, or that Tally was too busy to serve, is tried
+again a few times, because nothing of it can be in Tally. A push Tally received
+and never answered is **not** sent again: a large import that outlasts the wait
+looks exactly like that, and Tally may still be working through it. The
+connector asks Tally which of that batch it now holds, records those as sent,
+and leaves the rest marked *Unknown Result* for a person to check, so nothing is
+posted twice.
+
 Each row has its own **XML** and **Push** buttons if you only need one area.
 
 ---
