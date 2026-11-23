@@ -4,3 +4,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # One pull request a week for every action, titled as a conventional
+    # commit ("chore(deps): ..."), so it passes the commit check as it is.
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
