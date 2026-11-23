@@ -1,5 +1,3 @@
-from frappe.tests import UnitTestCase
-
 """
 What a second import does.
 
@@ -35,7 +33,7 @@ from tally_connector.tally.render import (
 from tally_connector.tally.validate import TargetCompany, validate
 
 
-class TestDuplicateBehaviour(UnitTestCase):
+class TestDuplicateBehaviour(unittest.TestCase):
 	def test_masters_declare_nothing_about_duplicates_by_default(self):
 		"""The reverse of what this asserted until 20 September.
 
@@ -61,7 +59,7 @@ class TestDuplicateBehaviour(UnitTestCase):
 		self.assertEqual(root.findtext(".//IMPORTDUPS"), DUP_MODIFY)
 
 
-class TestVoucherAction(UnitTestCase):
+class TestVoucherAction(unittest.TestCase):
 	def _vouchers(self, action):
 		xml = render_vouchers("Co", golden.load("sale_domestic_gst").vouchers, action)
 		return etree.fromstring(xml.encode("utf-8"))
@@ -119,7 +117,7 @@ class TestVoucherAction(UnitTestCase):
 					self.assertEqual(voucher.remote_id, voucher.number)
 
 
-class TestReimportWarning(UnitTestCase):
+class TestReimportWarning(unittest.TestCase):
 	"""Half the answer is in the file and half is in the target.
 
 	It used to be all target: the check reported the destination's numbering

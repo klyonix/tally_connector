@@ -21,8 +21,6 @@ import re
 import unittest
 from unittest.mock import patch
 
-from frappe.tests import UnitTestCase
-
 from tally_connector.tally import model
 from tally_connector.utils import connection
 from tally_connector.utils.connection import MASTER_ORDER, push_masters
@@ -45,7 +43,7 @@ def _ok(**over):
 	return out
 
 
-class TestTheOrderCannotDrift(UnitTestCase):
+class TestTheOrderCannotDrift(unittest.TestCase):
 	def test_master_order_is_the_order_the_renderer_writes(self):
 		"""Two copies of one ordering is how they come to disagree, and the
 		one that matters is the renderer's, because that is the file Tally
@@ -74,7 +72,7 @@ class TestTheOrderCannotDrift(UnitTestCase):
 				self.assertIsInstance(getattr(m, kind), list)
 
 
-class TestBatching(UnitTestCase):
+class TestBatching(unittest.TestCase):
 	def _push(self, masters, results=None, batch=250):
 		"""Send, with the transport replaced by a list of canned answers."""
 		calls = []
@@ -121,7 +119,7 @@ class TestBatching(UnitTestCase):
 		self.assertGreater(first["bytes"], 0)
 
 
-class TestStoppingAtTheFirstRefusal(UnitTestCase):
+class TestStoppingAtTheFirstRefusal(unittest.TestCase):
 	"""Tally aborts a file at the first record it refuses and loses the rest,
 	so the batch that failed is partly imported and every later batch would
 	land on a company whose masters are already wrong. Carrying on turns one
@@ -168,7 +166,7 @@ class TestStoppingAtTheFirstRefusal(UnitTestCase):
 		self.assertEqual(len(calls), 1)
 
 
-class TestNotPostingAnEmptyFile(UnitTestCase):
+class TestNotPostingAnEmptyFile(unittest.TestCase):
 	"""The resolution drops every master the destination already holds, so a
 	batch of 250 can legitimately come out empty. Posting it is a round trip
 	that can only fail, on a company that has already fallen over once."""
@@ -200,7 +198,7 @@ class TestNotPostingAnEmptyFile(UnitTestCase):
 		self.assertEqual(calls, [])
 
 
-class TestNamingWhatTallyRefused(UnitTestCase):
+class TestNamingWhatTallyRefused(unittest.TestCase):
 	"""Tally will not say what it refused.
 
 	A real batch answered *"0 errors and 1 exceptions"* and named nothing, so
@@ -275,7 +273,7 @@ class TestNamingWhatTallyRefused(UnitTestCase):
 		self.assertEqual(summary["refused"], [])
 
 
-class TestAnUnreadableAnswerIsNeverBisected(UnitTestCase):
+class TestAnUnreadableAnswerIsNeverBisected(unittest.TestCase):
 	"""`unknown` means Tally fell over or said something that could not be
 	read. Sending it another 250 requests one at a time is how a wounded Tally
 	is finished off, which is the failure this batching exists to avoid.
@@ -314,7 +312,7 @@ class TestAnUnreadableAnswerIsNeverBisected(UnitTestCase):
 		self.assertIsNone(summary["stopped_at"])
 
 
-class TestSentMeansSent(UnitTestCase):
+class TestSentMeansSent(unittest.TestCase):
 	"""`sent` used to be the chunk's length, which is records considered.
 
 	The renderer drops what the destination already holds and what Tally could
@@ -346,7 +344,7 @@ class TestSentMeansSent(UnitTestCase):
 		self.assertEqual(self._sent(_masters(ledgers=50)), 50)
 
 
-class TestCarryingOnPastARefusedBatch(UnitTestCase):
+class TestCarryingOnPastARefusedBatch(unittest.TestCase):
 	"""A run that stops at the first bad batch leaves the rest of a year's
 	books in ERPNext.
 
@@ -433,7 +431,7 @@ class TestCarryingOnPastARefusedBatch(UnitTestCase):
 		self.assertEqual(out["stopped_at"], 1)
 
 
-class TestTheReconcileReadStaysSmall(UnitTestCase):
+class TestTheReconcileReadStaysSmall(unittest.TestCase):
 	"""The read after a refused batch asks about that batch's own dates.
 
 	Asking for the whole period meant a read that grew with every voucher that
@@ -475,7 +473,7 @@ class TestTheReconcileReadStaysSmall(UnitTestCase):
 		self.assertEqual(asked["window"], ("2025-04-01", "2026-03-31"))
 
 
-class TestTheProbeIsAskedMoreThanOnce(UnitTestCase):
+class TestTheProbeIsAskedMoreThanOnce(unittest.TestCase):
 	"""One probe that timed out used to stop the whole run.
 
 	Tally is busy in the moment after it has refused a file, and on a push

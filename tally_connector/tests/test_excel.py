@@ -1,5 +1,3 @@
-from frappe.tests import UnitTestCase
-
 """
 The workbooks, offline. No site, no database, no Tally.
 
@@ -93,7 +91,7 @@ def _rows(sheet):
 	return out
 
 
-class TestTheHeaderRowIsTheContract(UnitTestCase):
+class TestTheHeaderRowIsTheContract(unittest.TestCase):
 	"""Tally matches on the column header, so a rename is a silent data loss."""
 
 	def setUp(self):
@@ -119,7 +117,7 @@ class TestTheHeaderRowIsTheContract(UnitTestCase):
 				self.assertEqual([c.value for c in self.masters[sheet][1]], ["Name"])
 
 
-class TestSignBecomesAWord(UnitTestCase):
+class TestSignBecomesAWord(unittest.TestCase):
 	"""The model carries a signed amount. Excel carries the magnitude and a
 	side, so a minus reaching a cell is a debit posted as a credit."""
 
@@ -160,7 +158,7 @@ class TestSignBecomesAWord(UnitTestCase):
 		self.assertEqual(round(total, 2), 0.0)
 
 
-class TestAVoucherIsARunOfRows(UnitTestCase):
+class TestAVoucherIsARunOfRows(unittest.TestCase):
 	"""The first row of the run carries the voucher's own fields and every later
 	row leaves them blank, which is how Tally knows the run has not ended."""
 
@@ -180,7 +178,7 @@ class TestAVoucherIsARunOfRows(UnitTestCase):
 		self.assertNotIn("Ledger Amount", refs[1])
 
 
-class TestValuesTallyValidates(UnitTestCase):
+class TestValuesTallyValidates(unittest.TestCase):
 	"""Four columns are checked against a list on the Read Me sheet."""
 
 	def test_change_mode_is_one_of_tallys_three(self):
@@ -250,7 +248,7 @@ class TestValuesTallyValidates(UnitTestCase):
 		self.assertEqual(heads["Output CGST"], "CGST")
 
 
-class TestEveryScenarioRenders(UnitTestCase):
+class TestEveryScenarioRenders(unittest.TestCase):
 	def test_both_workbooks_open_for_every_scenario(self):
 		for name in golden.scenarios():
 			export = golden.load(name)
