@@ -18,6 +18,7 @@
   "voucher_import_action",
   "send_voucher_guid",
   "send_voucher_inventory",
+  "per_record_results",
   "export_from_date",
   "cb2",
   "include_sales_invoice",
@@ -153,6 +154,13 @@
    "fieldname": "send_voucher_inventory",
    "fieldtype": "Check",
    "label": "Send item detail on vouchers"
+  },
+  {
+   "default": "0",
+   "description": "Off until proven against your Tally. On, each push carries a small TDL report that asks Tally to say what became of every master and voucher, so a refused record is named with Tally's own words. If Tally answers without it, the push falls back to the totals it reads today.",
+   "fieldname": "per_record_results",
+   "fieldtype": "Check",
+   "label": "Ask Tally for a result per record"
   },
   {
    "description": "Leave blank to export all records",
@@ -384,7 +392,7 @@
  "issingle": 1,
  "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-23 12:08:39.180602",
+ "modified": "2026-11-23 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Tally Connector",
  "name": "Tally Settings",

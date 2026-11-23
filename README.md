@@ -126,6 +126,20 @@ connector asks Tally which of that batch it now holds, records those as sent,
 and leaves the rest marked *Unknown Result* for a person to check, so nothing is
 posted twice.
 
+**A result per record (experimental, off by default).** Tally answers an import
+with totals and a line of text per refusal that names no record, so a refused
+voucher is found by asking Tally afterwards what it holds. *Ask Tally for a
+result per record* in Tally Settings sends each push with a small TDL response
+report, and Tally then says what became of every master and voucher: created,
+altered, or refused with its own words, plus the master id of a voucher it
+took. The sync ledger records each voucher's own outcome, and refused masters
+are named without being resent one at a time.
+
+The answer is trusted only when it names every record that was sent. Anything
+less, including a Tally that ignores the report, is read exactly as it is read
+with the setting off. The report has not yet been run against a live TallyPrime
+by this project, so try it on a test company first.
+
 Each row has its own **XML** and **Push** buttons if you only need one area.
 
 ---
