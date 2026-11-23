@@ -6,12 +6,41 @@ Tally must be open with a company loaded and XML server enabled in
 Gateway of Tally → F12 Configuration → Advanced Configuration → Enable XML Server.
 """
 
+import re
 import time
 
 import frappe
 import requests
 from frappe.utils import now_datetime
 from frappe.utils.caching import request_cache
+
+# What became of a request, as far as this side can tell. Three states rather
+# than two, because the middle one decides whether sending again is safe.
+ANSWERED = "answered"  # something on that port replied
+NEVER_LEFT = "never_left"  # no connection was made, so nothing was delivered
+LOST = "lost"  # delivered, or may have been, and no reply came back
+
+
+def _never_left(exc) -> bool:
+	"""Whether this failure happened before any of the request was delivered.
+
+	Only a failure to connect qualifies: the host did not resolve, the port
+	refused, or the connection was never established in time. Everything else
+	- a read timeout, a connection reset while waiting, a body cut short - can
+	happen after Tally has the whole request, and Tally may be importing it.
+	"""
+	if isinstance(exc, requests.exceptions.ConnectTimeout):
+		return True
+	if isinstance(exc, requests.exceptions.InvalidURL | requests.exceptions.MissingSchema):
+		return True
+	if not isinstance(exc, requests.exceptions.ConnectionError):
+		return False
+	from urllib3.exceptions import ConnectTimeoutError, MaxRetryError, NewConnectionError
+
+	reason = exc.args[0] if exc.args else None
+	if isinstance(reason, MaxRetryError):
+		reason = reason.reason
+	return isinstance(reason, NewConnectionError | ConnectTimeoutError)
 
 
 class TallyConnector:
@@ -33,13 +62,26 @@ class TallyConnector:
 		# exactly what a person presses that button to find out.
 		self.timeout = 60  # a push
 		self.probe_timeout = 5  # a question
+		# Connecting is a handshake whatever the request is, so a push gets the
+		# question's wait for that part. A switched-off PC then fails a push in
+		# seconds rather than holding it for the whole push timeout, and the
+		# retry that follows is cheap.
+		self.connect_timeout = 5
 
 	# ──────────────────────────────────────────────────────────────
 	# Core HTTP method
 	# ──────────────────────────────────────────────────────────────
 
-	def _post_xml(self, xml_string, timeout=None):
-		"""POST raw XML to Tally and return (success, response_text)."""
+	def send(self, xml_string, timeout=None):
+		"""POST raw XML to Tally and say what became of it: (state, text).
+
+		`state` is ANSWERED, NEVER_LEFT or LOST. The difference between the last
+		two is the difference between a request that is safe to send again and
+		one that may already be in the books: this used to report a read
+		timeout as "could not reach Tally", the sync ledger recorded the batch
+		as Failed, and Failed is resendable - so a Tally slow to finish a large
+		import was sent the same vouchers again on the next run.
+		"""
 		headers = {
 			"Content-Type": "text/xml; charset=utf-8",
 		}
@@ -49,27 +91,43 @@ class TallyConnector:
 				self.base_url,
 				data=xml_string.encode("utf-8"),
 				headers=headers,
-				timeout=timeout,
+				timeout=(min(self.connect_timeout, timeout), timeout),
 			)
-			resp.raise_for_status()
-			return True, resp.text
-		except requests.exceptions.ConnectionError:
-			return False, (
-				f"Cannot connect to Tally at {self.base_url}. "
-				"Make sure Tally Prime is open and XML Server is enabled. "
-				"If ERPNext is in the cloud and Tally is on your local LAN, direct connection won't work. "
-				"In that case, please uncheck 'Push directly to Tally' and use the 'Download XML' option instead."
-			)
-		except requests.exceptions.Timeout:
-			return False, (
-				f"Tally did not answer within {timeout}s at {self.base_url}. "
-				"Check that Tally Prime is open and its XML Server is enabled on "
-				"that port."
-			)
-		except requests.exceptions.HTTPError as e:
-			return False, f"HTTP error from Tally: {e}"
+		except requests.exceptions.RequestException as e:
+			if _never_left(e):
+				if isinstance(e, requests.exceptions.ConnectTimeout):
+					return NEVER_LEFT, (
+						f"Tally did not accept a connection within {self.connect_timeout}s at "
+						f"{self.base_url}. Check that the PC running Tally is on and reachable "
+						"from this server."
+					)
+				return NEVER_LEFT, (
+					f"Cannot connect to Tally at {self.base_url}. "
+					"Make sure Tally Prime is open and XML Server is enabled. "
+					"If ERPNext is in the cloud and Tally is on your local LAN, direct connection won't work. "
+					"In that case, please uncheck 'Push directly to Tally' and use the 'Download XML' option instead."
+				)
+			if isinstance(e, requests.exceptions.Timeout):
+				return LOST, (
+					f"Tally was sent the request and did not answer within {timeout}s at "
+					f"{self.base_url}. It may still be importing it."
+				)
+			return LOST, f"The connection to Tally dropped before it answered: {e}"
 		except Exception as e:
-			return False, str(e)
+			return LOST, str(e)
+
+		if not resp.ok:
+			# Tally answers everything it serves with 200, so this is a proxy or
+			# tunnel in front of it, or another program on the port. A proxy may
+			# have forwarded the request before failing, so this is not proof
+			# that nothing arrived.
+			return LOST, f"HTTP error from Tally: {resp.status_code} {resp.reason}"
+		return ANSWERED, resp.text
+
+	def _post_xml(self, xml_string, timeout=None):
+		"""POST raw XML to Tally and return (answered, response_text)."""
+		state, text = self.send(xml_string, timeout)
+		return state == ANSWERED, text
 
 	# ──────────────────────────────────────────────────────────────
 	# Connectivity test
@@ -714,6 +772,7 @@ def push_vouchers(
 		"unknown": False,
 		"refused": [],
 		"rounded": [],
+		"read_back": 0,
 	}
 	if not vouchers:
 		return summary
@@ -750,6 +809,26 @@ def push_vouchers(
 			_record_batch(chunk, erpnext_company, company, result)
 			continue
 
+		if result.get("unknown"):
+			# The batch was delivered and the answer lost, which is what a
+			# Tally slow to finish a large import looks like from here. Ask it
+			# which of the batch it now holds: those are recorded as in Tally,
+			# and the rest stay unknown - never resent automatically, because
+			# Tally may still be importing them. When all of it is there, Tally
+			# is answering again and the run carries on.
+			landed, _absent = _split_by_what_tally_holds(chunk, company, period)
+			landed = landed or []
+			if landed:
+				summary["sent"] += len(landed)
+				summary["created"] += len(landed)
+				summary["read_back"] += len(landed)
+				_record_batch(landed, erpnext_company, company, _landed(len(landed)))
+			if len(landed) == len(chunk):
+				summary["batches"][-1]["read_back"] = True
+				continue
+			held = {id(v) for v in landed}
+			chunk = [v for v in chunk if id(v) not in held]
+
 		summary["success"] = False
 		summary["unknown"] = bool(result.get("unknown"))
 		summary["errors"] = result.get("errors") or []
@@ -780,14 +859,7 @@ def push_vouchers(
 				landed,
 				erpnext_company,
 				company,
-				{
-					"success": True,
-					"reached": True,
-					"created": len(landed),
-					"altered": 0,
-					"unknown": False,
-					"errors": [],
-				},
+				_landed(len(landed)),
 			)
 		if refused and round_to_tally:
 			# Tally computes the invoice's value itself and refuses a party
@@ -828,14 +900,7 @@ def push_vouchers(
 					adjusted,
 					erpnext_company,
 					company,
-					{
-						"success": True,
-						"reached": True,
-						"created": len(adjusted),
-						"altered": 0,
-						"unknown": False,
-						"errors": [],
-					},
+					_landed(len(adjusted)),
 				)
 			refused = still
 
@@ -852,6 +917,18 @@ def push_vouchers(
 			)
 
 	return summary
+
+
+def _landed(count):
+	"""The result to record for vouchers Tally was asked about and holds."""
+	return {
+		"success": True,
+		"reached": True,
+		"created": count,
+		"altered": 0,
+		"unknown": False,
+		"errors": [],
+	}
 
 
 def _split_by_what_tally_holds(chunk, tally_company, period):
@@ -951,6 +1028,55 @@ def _record_batch(chunk, erpnext_company, tally_company, result):
 			pass
 
 
+# How often a push is tried before giving up, and how long to wait between
+# tries. Only a request that is safe to repeat is ever tried again: one that
+# never left this server, or one Tally said it was too busy to serve.
+SEND_TRIES = 3
+SEND_PAUSES = (2, 5)
+
+# Tally's words for "not now". 6010 is "Request cannot be served, please try
+# later" and 6612 is "unable to establish session"; both are Tally declining a
+# request before it reads it.
+BUSY = re.compile(r"\b(6010|6612)\b|please try later|unable to establish session", re.IGNORECASE)
+_IMPORTED = re.compile(r"<(CREATED|ALTERED|IMPORTRESULT)\b", re.IGNORECASE)
+
+
+def _busy(response) -> bool:
+	"""Whether Tally declined the request without importing any of it.
+
+	Both halves are needed. The words alone could appear inside an answer that
+	did import something - a narration, a line error - and a retry of that
+	would duplicate what landed. An answer carrying import counts is read as an
+	import whatever else it says.
+	"""
+	response = response or ""
+	return bool(BUSY.search(response)) and not _IMPORTED.search(response)
+
+
+def _busy_words(response) -> str:
+	"""Tally's sentence, without the envelope around it."""
+	text = re.sub(r"<[^>]+>", " ", response or "")
+	return " ".join(text.split())[:300]
+
+
+def _deliver(conn, xml_string):
+	"""Send once, trying again only what cannot already be in Tally.
+
+	Returns (state, response, tries). A request that was delivered and not
+	answered is never repeated here: it is handed back as LOST for the caller
+	to treat as unknown, because a second copy of an import Tally is still
+	working through is exactly how vouchers come to be posted twice.
+	"""
+	state, response = NEVER_LEFT, ""
+	for attempt in range(SEND_TRIES):
+		state, response = conn.send(xml_string)
+		retry = state == NEVER_LEFT or (state == ANSWERED and _busy(response))
+		if not retry or attempt + 1 == SEND_TRIES:
+			return state, response, attempt + 1
+		time.sleep(SEND_PAUSES[min(attempt, len(SEND_PAUSES) - 1)])
+	return state, response, SEND_TRIES
+
+
 def push_to_tally(xml_string, export_log_name=None):
 	"""Send XML to Tally and record what Tally actually said about it.
 
@@ -961,23 +1087,36 @@ def push_to_tally(xml_string, export_log_name=None):
 	blindly, because Tally may hold the vouchers already.
 	"""
 	conn = TallyConnector()
-	reached, response = conn.push_xml(xml_string)
+	state, response, tries = _deliver(conn, xml_string)
+	reached = state != NEVER_LEFT
 
-	parsed = (
-		conn.parse_tally_response(response)
-		if reached
-		else {
-			"created": 0,
-			"altered": 0,
-			"ignored": 0,
-			"error_count": 0,
-			"exceptions": 0,
-			"last_voucher_id": "",
-			"parsed": False,
-			"errors": [response],
-			"raw": response,
-		}
-	)
+	unread = {
+		"created": 0,
+		"altered": 0,
+		"ignored": 0,
+		"error_count": 0,
+		"exceptions": 0,
+		"last_voucher_id": "",
+		"parsed": False,
+		"errors": [response],
+		"raw": response,
+	}
+	if state == ANSWERED and _busy(response):
+		# Tally said it would not serve the request, which is a statement that
+		# nothing was imported - so this is a refusal that can be sent again,
+		# not an answer nobody can read.
+		parsed = dict(
+			unread,
+			parsed=True,
+			errors=[
+				"Tally was busy and did not serve the request, so nothing was imported. "
+				f"It answered: {_busy_words(response)}"
+			],
+		)
+	elif state == ANSWERED:
+		parsed = conn.parse_tally_response(response)
+	else:
+		parsed = unread
 
 	# Three different things, told apart because they need different answers.
 	#
@@ -1006,10 +1145,18 @@ def push_to_tally(xml_string, export_log_name=None):
 			"open in Tally."
 		)
 
+	if unknown and state == LOST:
+		errors.append(
+			"Whether these records arrived is unknown, so they are not sent again "
+			"automatically. Check Tally for them first."
+		)
+
 	result = {
 		"success": success,
 		"reached": reached,
 		"unknown": unknown,
+		"state": state,
+		"tries": tries,
 		"response": response,
 		"created": parsed.get("created", 0),
 		"altered": parsed.get("altered", 0),
