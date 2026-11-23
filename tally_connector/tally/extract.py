@@ -21,6 +21,7 @@ import re
 
 import frappe
 from frappe.utils import cstr, flt, getdate
+from frappe.utils.caching import request_cache
 
 from tally_connector.tally.accounting import without_stock
 from tally_connector.tally.model import (
@@ -101,6 +102,7 @@ def gst_ledgers(company):
 	return {ledger_name(account, company): head for account, head in gst_accounts(company).items()}
 
 
+@request_cache
 def gst_accounts(company):
 	"""The same answer keyed on the ERPNext account rather than the Tally ledger.
 
@@ -108,9 +110,6 @@ def gst_accounts(company):
 	and the rate on each only means something once you know whether that account
 	is CGST, SGST, IGST or Cess.
 	"""
-	cache = getattr(frappe.local, "_tally_connector_gst", {})
-	if company in cache:
-		return cache[company]
 	mapping = {}
 	try:
 		from india_compliance.gst_india.utils import get_gst_accounts_by_type
@@ -133,11 +132,10 @@ def gst_accounts(company):
 					mapping[account] = duty_head
 	except ImportError:
 		pass
-	cache[company] = mapping
-	frappe.local._tally_connector_gst = cache
 	return mapping
 
 
+@request_cache
 def _party_names():
 	"""Party id -> the ledger name Tally knows it by, for all three party types.
 
@@ -155,18 +153,15 @@ def _party_names():
 	resolve from the thing that does not change, and keep the snapshot only as a
 	fallback for a party that has since been deleted.
 	"""
-	cache = getattr(frappe.local, "_tally_connector_party_names", None)
-	if cache is None:
-		cache = {}
-		for doctype, field in (
-			("Customer", "customer_name"),
-			("Supplier", "supplier_name"),
-			("Employee", "employee_name"),
-		):
-			for row in frappe.get_all(doctype, fields=["name", field], limit_page_length=0):
-				cache[(doctype, row.name)] = party_ledger_name(row.get(field) or row.name)
-		frappe.local._tally_connector_party_names = cache
-	return cache
+	names = {}
+	for doctype, field in (
+		("Customer", "customer_name"),
+		("Supplier", "supplier_name"),
+		("Employee", "employee_name"),
+	):
+		for row in frappe.get_all(doctype, fields=["name", field], limit_page_length=0):
+			names[(doctype, row.name)] = party_ledger_name(row.get(field) or row.name)
+	return names
 
 
 def _party_name(party_type, party_id, fallback=""):
@@ -2005,6 +2000,7 @@ def _unit_sanitise(uom):
 	return re.sub(r"\s+", " ", safe).strip(" -")
 
 
+@request_cache
 def _unit_symbols():
 	"""ERPNext UOM name -> the symbol Tally will know it by, collisions resolved.
 
@@ -2017,10 +2013,6 @@ def _unit_symbols():
 	their quantities. That is the stock-item collision, on units, and it is
 	resolved the same way: by making the second one different.
 	"""
-	cache = getattr(frappe.local, "_tally_connector_unit_symbols", None)
-	if cache is not None:
-		return cache
-
 	out, taken = {}, {}
 	for name in sorted(frappe.get_all("UOM", pluck="name", limit_page_length=0) or []):
 		safe = _unit_sanitise(name)
@@ -2034,9 +2026,7 @@ def _unit_symbols():
 			symbol = f"{stem}{n}"
 		taken[symbol] = name
 		out[name] = symbol
-
-	cache = frappe.local._tally_connector_unit_symbols = out
-	return cache
+	return out
 
 
 def unit_name(uom):
@@ -2159,6 +2149,7 @@ def stock_item_name(code, fallback=""):
 	return _item_names().get(code) or cstr(fallback).strip() or cstr(code).strip()
 
 
+@request_cache
 def _item_names():
 	"""Item code -> the name Tally will know it by, with collisions resolved.
 
@@ -2166,10 +2157,6 @@ def _item_names():
 	and for every voucher line - a name resolved one way in one place and another
 	way in the other is the defect this whole function exists to prevent.
 	"""
-	cache = getattr(frappe.local, "_tally_connector_item_names", None)
-	if cache is not None:
-		return cache
-
 	rows = frappe.get_all("Item", fields=["name", "item_name"], order_by="name asc", limit_page_length=0)
 	# Stripped for the same reason party names are: whitespace at the ends of a
 	# Tally name is invisible and never meaningful, and two names differing only
@@ -2184,11 +2171,10 @@ def _item_names():
 		if len(codes) > 1:
 			for code in codes:
 				display[code] = cstr(code).strip()
-
-	cache = frappe.local._tally_connector_item_names = display
-	return cache
+	return display
 
 
+@request_cache
 def cash_and_bank(company):
 	"""The ledgers Tally will treat as money, keyed to their Tally group.
 
@@ -2198,20 +2184,15 @@ def cash_and_bank(company):
 	groups for bank reconciliation to offer it, for a Contra to accept it, and
 	for it to be excluded from a Journal.
 	"""
-	cache = getattr(frappe.local, "_tally_connector_cash_bank", {})
-	if company not in cache:
-		rows = frappe.get_all(
-			"Account",
-			filters={"company": company, "account_type": ["in", ["Bank", "Cash"]]},
-			fields=["name", "account_type"],
-			limit_page_length=0,
-		)
-		cache[company] = {
-			ledger_name(r.name, company): (GROUP_BANK if r.account_type == "Bank" else GROUP_CASH)
-			for r in rows
-		}
-		frappe.local._tally_connector_cash_bank = cache
-	return cache[company]
+	rows = frappe.get_all(
+		"Account",
+		filters={"company": company, "account_type": ["in", ["Bank", "Cash"]]},
+		fields=["name", "account_type"],
+		limit_page_length=0,
+	)
+	return {
+		ledger_name(r.name, company): (GROUP_BANK if r.account_type == "Bank" else GROUP_CASH) for r in rows
+	}
 
 
 # Tally's reserved groups that mean money.

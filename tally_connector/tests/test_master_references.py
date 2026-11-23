@@ -268,8 +268,10 @@ class TestTallysMoneyGroupsHoldOnlyMoney(IntegrationTestCase):
 	def setUp(self):
 		if not self.account:
 			self.skipTest("This chart has no group Tally reads as Cash-in-Hand.")
-		if hasattr(frappe.local, "_tally_connector_cash_bank"):
-			delattr(frappe.local, "_tally_connector_cash_bank")
+		from tally_connector.tally.extract import cash_and_bank
+
+		# Frappe's request cache keys each entry by the function it wraps.
+		frappe.local.request_cache.pop(cash_and_bank.__wrapped__, None)
 
 	def _ledger(self):
 		from tally_connector.utils.ledgers import ledger_name

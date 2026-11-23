@@ -11,6 +11,7 @@ import time
 import frappe
 import requests
 from frappe.utils import now_datetime
+from frappe.utils.caching import request_cache
 
 
 class TallyConnector:
@@ -234,6 +235,16 @@ class TallyConnector:
 </COLLECTION></TDLMESSAGE></TDL></DESC></BODY></ENVELOPE>"""
 
 	def snapshot(self):
+		"""What the destination company already holds, asked once a request.
+
+		An export asks once and several sections may follow it; probing a Tally
+		that is not there costs a timeout every time, and probing one that is
+		costs ten round trips. Keyed on the host and port as well as the
+		company, so a changed address is asked afresh.
+		"""
+		return _snapshot(self.host, self.port, self.company or "")
+
+	def _take_snapshot(self):
 		"""What the destination company already holds, as far as it will say.
 
 		One read per master type. Each failure leaves that type **unknown**
@@ -253,13 +264,6 @@ class TallyConnector:
 			parse_masters,
 		)
 
-		# Cached for the life of the request. An export asks once and several
-		# sections may follow it; probing a Tally that is not there costs a
-		# timeout every time, and probing one that is costs ten round trips.
-		cached = getattr(frappe.local, "_tally_connector_snapshot", None)
-		if cached is not None and cached.company == (self.company or ""):
-			return cached
-
 		snap = TallySnapshot(company=self.company or "")
 
 		ok, response = self.test_connection()
@@ -276,7 +280,6 @@ class TallyConnector:
 			for kind, *_ in COLLECTIONS:
 				snap.unavailable[kind] = "Tally could not be reached."
 			snap.unavailable["voucher_types"] = "Tally could not be reached."
-			frappe.local._tally_connector_snapshot = snap
 			return snap
 
 		for kind, collection_id, type_name, fields in COLLECTIONS:
@@ -301,7 +304,6 @@ class TallyConnector:
 			snap.unavailable["voucher_types"] = "Tally did not answer."
 		else:
 			snap.voucher_types = details
-		frappe.local._tally_connector_snapshot = snap
 		return snap
 
 	def vouchers_in_period(self, from_date, to_date):
@@ -1044,3 +1046,12 @@ def push_to_tally(xml_string, export_log_name=None):
 			frappe.log_error(frappe.get_traceback(), "Tally Connector: Export Log update failed")
 
 	return result
+
+
+@request_cache
+def _snapshot(host, port, company):
+	"""One snapshot per destination per request."""
+	conn = TallyConnector()
+	conn.host, conn.port, conn.company = host, port, company
+	conn.base_url = f"http://{host}:{port}"
+	return conn._take_snapshot()
