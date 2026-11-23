@@ -108,9 +108,8 @@ def open_export(source):
 	if isinstance(source, (bytes, bytearray)):
 		source = io.BytesIO(source)
 	elif isinstance(source, str):
-		source = open(
-			source, "rb"
-		)  # nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		# nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		source = open(source, "rb")
 
 	head = source.read(4)
 	source.seek(0)

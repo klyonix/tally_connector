@@ -34,9 +34,8 @@ def scenarios():
 
 
 def load(name):
-	with open(
-		os.path.join(FIXTURES, name + ".json"), encoding="utf-8"
-	) as fh:  # nosemgrep: frappe-security-file-traversal - a fixed test fixture path
+	# nosemgrep: frappe-security-file-traversal - a fixed test fixture path
+	with open(os.path.join(FIXTURES, name + ".json"), encoding="utf-8") as fh:
 		return export_from_dict(json.load(fh))
 
 
@@ -59,9 +58,8 @@ def check():
 			if not os.path.exists(path):
 				failures.append((filename, "no golden file"))
 				continue
-			with open(
-				path, encoding="utf-8"
-			) as fh:  # nosemgrep: frappe-security-file-traversal - a fixed test fixture path
+			# nosemgrep: frappe-security-file-traversal - a fixed test fixture path
+			with open(path, encoding="utf-8") as fh:
 				expected = fh.read()
 			if expected != produced:
 				failures.append((filename, "differs from golden"))
@@ -73,9 +71,8 @@ def write():
 	written = []
 	for name in scenarios():
 		for filename, produced in rendered(name).items():
-			with open(
-				golden_path(filename), "w", encoding="utf-8"
-			) as fh:  # nosemgrep: frappe-security-file-traversal - a fixed test fixture path
+			# nosemgrep: frappe-security-file-traversal - a fixed test fixture path
+			with open(golden_path(filename), "w", encoding="utf-8") as fh:
 				fh.write(produced)
 			written.append(filename)
 	return written

@@ -44,11 +44,11 @@ class TestEndpointsAreFenced(IntegrationTestCase):
 		self.website_user = self._a_website_user()
 
 	def _a_website_user(self):
-		existing = frappe.get_all(
-			"User", filters={"user_type": "Website User", "enabled": 1}, limit=1, pluck="name"
-		)
-		if existing:
-			return existing[0]
+		# Always our own user: the first Website User on a fresh site is Guest,
+		# which the page answers with a login redirect, not a refusal.
+		email = "tally-connector-fence@example.com"
+		if frappe.db.exists("User", email):
+			return email
 		user = frappe.get_doc(
 			{
 				"doctype": "User",
