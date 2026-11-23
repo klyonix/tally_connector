@@ -97,6 +97,17 @@ jobs:
         env:
           CI: 'Yes'
 
+      - name: Run Offline Tests
+        working-directory: /home/runner/frappe-bench
+        # The pure half of the suite needs no site, and must stay that way.
+        run: |
+          ./env/bin/python -m unittest \
+            tally_connector.tests.test_render tally_connector.tests.test_validate \
+            tally_connector.tests.test_reimport tally_connector.tests.test_excel \
+            tally_connector.tests.test_accounting_only tally_connector.tests.test_imp_regressions \
+            tally_connector.tests.test_master_batching tally_connector.tests.test_round_trip \
+            tally_connector.tests.test_rounding
+
       - name: Run Tests
         working-directory: /home/runner/frappe-bench
         run: |

@@ -1,5 +1,3 @@
-from frappe.tests import UnitTestCase
-
 """
 The offline suite. No site, no database, no Tally.
 
@@ -31,7 +29,7 @@ from tally_connector.tally.model import (
 from tally_connector.tally.render import render, render_vouchers
 
 
-class TestGoldenFiles(UnitTestCase):
+class TestGoldenFiles(unittest.TestCase):
 	"""Every scenario renders exactly what was committed.
 
 	A diff here is either a defect or an intended change; either way somebody
@@ -60,7 +58,7 @@ class TestGoldenFiles(UnitTestCase):
 				self.assertEqual(golden.rendered(name), golden.rendered(name))
 
 
-class TestSignConvention(UnitTestCase):
+class TestSignConvention(unittest.TestCase):
 	"""Tally reads the sign off the amount; ISDEEMEDPOSITIVE flags the debit side.
 
 	Storing both separately is how they came to disagree, and how a purchase
@@ -97,7 +95,7 @@ class TestSignConvention(UnitTestCase):
 		self.assertEqual(by_ledger["A"].findtext("ISDEEMEDPOSITIVE"), "No")
 
 
-class TestVoucherBalance(UnitTestCase):
+class TestVoucherBalance(unittest.TestCase):
 	"""The check Tally applies hardest: amounts must sum to zero."""
 
 	def test_every_scenario_balances_except_the_one_that_should_not(self):
@@ -127,7 +125,7 @@ class TestVoucherBalance(UnitTestCase):
 		self.assertTrue(export.vouchers[0].balances())
 
 
-class TestInvoiceView(UnitTestCase):
+class TestInvoiceView(unittest.TestCase):
 	"""A voucher carrying stock must declare the invoice view, or Tally answers
 	'Can't mix Stock Items and Accounting Entries'."""
 
@@ -184,7 +182,7 @@ class TestInvoiceView(UnitTestCase):
 		self.assertTrue(seen["accounting"], "no accounting voucher either")
 
 
-class TestBillWise(UnitTestCase):
+class TestBillWise(unittest.TestCase):
 	"""A ledger with ISBILLWISEON obliges its vouchers to carry bill references,
 	or the amount posts to On Account and the ageing is useless."""
 
@@ -228,7 +226,7 @@ class TestBillWise(UnitTestCase):
 		self.assertEqual(party[0].findtext("BILLALLOCATIONS.LIST/BILLTYPE"), "New Ref")
 
 
-class TestEscapingAndStructure(UnitTestCase):
+class TestEscapingAndStructure(unittest.TestCase):
 	def test_ampersands_and_brackets_survive(self):
 		xml = golden.rendered("party_needing_escaping")["party_needing_escaping.vouchers.xml"]
 		self.assertIn("&amp;", xml)
@@ -318,7 +316,7 @@ class TestEscapingAndStructure(UnitTestCase):
 		self.assertIsNone(voucher.find("OBJVIEW"))
 
 
-class TestClosure(UnitTestCase):
+class TestClosure(unittest.TestCase):
 	"""Every ledger a voucher names must be created by a master.
 
 	Held offline now as well as against the site: this is what Tally reports as
@@ -340,32 +338,37 @@ class TestClosure(UnitTestCase):
 				self.assertEqual(sorted(referenced - created), [])
 
 
-class TestOffline(UnitTestCase):
+class TestOffline(unittest.TestCase):
 	def test_only_the_extract_layer_imports_frappe(self):
 		"""The property the whole layering exists for.
 
-		`extract.py` is the one module that reads ERPNext, and it is named here
-		rather than pattern-matched, so a second impure module fails this test
-		instead of quietly widening the exception. Everything else in the package
-		stays runnable with no site, which is what keeps the offline suite
-		offline.
+		`tally/extract/` is the one package that reads ERPNext, and it is named
+		here rather than pattern-matched, so a second impure module fails this
+		test instead of quietly widening the exception. Everything else in the
+		package stays runnable with no site, which is what keeps the offline
+		suite offline.
 
 		Asserted by reading the sources rather than by checking `sys.modules`,
 		because `bench run-tests` has frappe imported already and the check would
 		pass for the wrong reason - and offline is exactly the case bench cannot
-		exercise.
+		exercise. The walk goes into subpackages, so a reader added in a new
+		folder is checked too.
 		"""
 		here = os.path.dirname(os.path.abspath(__file__))
 		package = os.path.normpath(os.path.join(here, "..", "tally"))
-		allowed = {"extract.py"}
+		allowed = os.path.join(package, "extract")
 		offenders = []
-		for name in sorted(os.listdir(package)):
-			if not name.endswith(".py") or name in allowed:
+		for root, _dirs, files in os.walk(package):
+			if root == allowed or root.startswith(allowed + os.sep):
 				continue
-			with open(os.path.join(package, name), encoding="utf-8") as fh:
-				for lineno, line in enumerate(fh, 1):
-					if line.strip().startswith(("import frappe", "from frappe")):
-						offenders.append(f"{name}:{lineno}")
+			for name in sorted(files):
+				if not name.endswith(".py"):
+					continue
+				path = os.path.join(root, name)
+				with open(path, encoding="utf-8") as fh:
+					for lineno, line in enumerate(fh, 1):
+						if line.strip().startswith(("import frappe", "from frappe")):
+							offenders.append(f"{os.path.relpath(path, package)}:{lineno}")
 		self.assertEqual(
 			offenders,
 			[],
@@ -373,13 +376,17 @@ class TestOffline(UnitTestCase):
 		)
 
 	def test_the_one_impure_module_is_still_impure(self):
-		"""An allow-list that names a module which has stopped importing frappe
+		"""An allow-list that names a package which has stopped importing frappe
 		is an exemption nobody notices is stale."""
 		here = os.path.dirname(os.path.abspath(__file__))
-		extract = os.path.normpath(os.path.join(here, "..", "tally", "extract.py"))
-		self.assertTrue(os.path.exists(extract))
-		with open(extract, encoding="utf-8") as fh:
-			self.assertIn("import frappe", fh.read())
+		extract = os.path.normpath(os.path.join(here, "..", "tally", "extract"))
+		self.assertTrue(os.path.isdir(extract))
+		sources = [
+			open(os.path.join(extract, name), encoding="utf-8").read()
+			for name in os.listdir(extract)
+			if name.endswith(".py")
+		]
+		self.assertTrue(any("import frappe" in source for source in sources))
 
 
 if __name__ == "__main__":

@@ -318,14 +318,14 @@ class TestTwoItemsStayTwoItems(IntegrationTestCase):
 					doc.gst_hsn_code = hsn
 			doc.insert(ignore_permissions=True)
 		frappe.db.commit()
-		frappe.local._tally_connector_item_names = None
+		_forget_item_names()
 
 	def tearDown(self):
 		for code in self._codes():
 			if frappe.db.exists("Item", code):
 				frappe.delete_doc("Item", code, force=True, ignore_permissions=True)
 		frappe.db.commit()
-		frappe.local._tally_connector_item_names = None
+		_forget_item_names()
 
 	def test_two_items_sharing_a_name_get_two_names(self):
 		from tally_connector.tally.extract import stock_item_name
@@ -373,3 +373,10 @@ class TestTwoItemsStayTwoItems(IntegrationTestCase):
 		for code in self._codes():
 			with self.subTest(code=code):
 				self.assertIn(stock_item_name(code, "a stale line name"), names)
+
+
+def _forget_item_names():
+	"""Drop the request's cached item names, so new items are seen."""
+	from tally_connector.tally.extract import _item_names
+
+	frappe.local.request_cache.pop(_item_names.__wrapped__, None)

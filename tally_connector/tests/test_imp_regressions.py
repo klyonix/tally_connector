@@ -24,9 +24,8 @@ Pure: no site, no database.
 from __future__ import annotations
 
 import datetime
+import unittest
 from decimal import Decimal
-
-from frappe.tests import UnitTestCase
 
 from tally_connector.tally import model
 from tally_connector.tally.extract_rules import UNIT_SYMBOL_MAX
@@ -46,7 +45,7 @@ def _checks(export):
 	return {f.check for f in validate(export).findings}
 
 
-class TestUnitSymbolTallyRefuses(UnitTestCase):
+class TestUnitSymbolTallyRefuses(unittest.TestCase):
 	"""`ERROR: Unit: Square Meter - BAD UNIT NAME`, and the same for
 	`Parts Per Million`. Our `masters_*4e3c1f.xml` and `01_masters_*c5129b.xml`.
 
@@ -79,7 +78,7 @@ class TestUnitSymbolTallyRefuses(UnitTestCase):
 		self.assertIn("unit", _checks(export))
 
 
-class TestTallySystemGroupIsNeverRedefined(UnitTestCase):
+class TestTallySystemGroupIsNeverRedefined(unittest.TestCase):
 	"""`ERROR: Group: Current Assets - Group 'Application of Funds (Assets)' is
 	already a child of this!`. Our `01_masters_*f7cce0.xml`.
 
@@ -117,7 +116,7 @@ class TestTallySystemGroupIsNeverRedefined(UnitTestCase):
 		self.assertNotIn("ledger parent", _checks(export))
 
 
-class TestNameMatchingIgnoresCaseAndPunctuation(UnitTestCase):
+class TestNameMatchingIgnoresCaseAndPunctuation(unittest.TestCase):
 	"""`ERROR: Ledger: Stock In Hand - Improper change of Group Name for Ledger
 	'Stock-in-Hand'!`. Our `01_masters_*ce78a3.xml`.
 
@@ -149,7 +148,7 @@ class TestNameMatchingIgnoresCaseAndPunctuation(UnitTestCase):
 			self.assertEqual(ledgers.ledger_name("Bad Debts - DT", "Demo Traders"), "Bad Debts")
 
 
-class TestAVoucherNeverNamesAnUncreatedLedger(UnitTestCase):
+class TestAVoucherNeverNamesAnUncreatedLedger(unittest.TestCase):
 	"""`ERROR: Voucher ... Ledger 'ACME TRADERS 9000000000' does not exist!`.
 	Our `02_vouchers_*0b4119.xml`.
 
@@ -172,7 +171,7 @@ class TestAVoucherNeverNamesAnUncreatedLedger(UnitTestCase):
 		self.assertEqual({f.severity for f in findings}, {REJECTS})
 
 
-class TestTheInventedDuplicateToken(UnitTestCase):
+class TestTheInventedDuplicateToken(unittest.TestCase):
 	"""`@@DUPIGNORECOMBINE` appeared in no Tally artefact, only in our own four
 	output files, and a real import answered `Created: 9,626  Altered: 9,694` -
 	nine and a half thousand of a customer's own masters overwritten.
@@ -209,7 +208,7 @@ class TestTheInventedDuplicateToken(UnitTestCase):
 					self.assertRegex(token, r"^@@DUP[A-Z]+$")
 
 
-class TestOneBadRecordLosesTheWholeFile(UnitTestCase):
+class TestOneBadRecordLosesTheWholeFile(unittest.TestCase):
 	"""The reason every one of these mattered enough to cost a round trip.
 
 	TallyPrime stops at the first record it cannot accept, so a single refused
@@ -228,7 +227,7 @@ class TestOneBadRecordLosesTheWholeFile(UnitTestCase):
 		self.assertEqual(sorted(SEVERITY_ORDER, key=SEVERITY_ORDER.get), [ABORTS, REJECTS, WRONG])
 
 
-class TestTheCustomersOwnUnitsWouldNowPass(UnitTestCase):
+class TestTheCustomersOwnUnitsWouldNowPass(unittest.TestCase):
 	"""The eight symbols our last real export actually sent, from
 	`01_masters_*ce78a3.xml`: BAG Box KG Nos SET SQ.FT SQFT SqMtr.
 	"""
@@ -247,7 +246,7 @@ class TestTheCustomersOwnUnitsWouldNowPass(UnitTestCase):
 		self.assertNotIn("name", _checks(export))
 
 
-class TestANameThatIsOnlyPunctuation(UnitTestCase):
+class TestANameThatIsOnlyPunctuation(unittest.TestCase):
 	"""`....` is a real customer on a real site, and it cost a live push.
 
 	Tally matches masters on `tally_key` - case and every non-alphanumeric
@@ -327,7 +326,7 @@ class TestANameThatIsOnlyPunctuation(UnitTestCase):
 				self.assertEqual(self._hits(name), [])
 
 
-class TestALedgerThatCarriesStockMustAffectInventory(UnitTestCase):
+class TestALedgerThatCarriesStockMustAffectInventory(unittest.TestCase):
 	"""Every invoice-mode voucher on this engagement failed for this.
 
 	Tally refuses an invoice whose ACCOUNTINGALLOCATIONS names a ledger with

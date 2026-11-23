@@ -1,7 +1,7 @@
 """
 Extract, render, write. The only impure thing this module does is read the
 settings and open files; everything about Tally lives in `tally/render.py` and
-everything about ERPNext in `tally/extract.py`.
+everything about ERPNext in `tally/extract/`.
 
 It exists because those two must not know about each other's side of the wall,
 and something has to hold them together for the dashboard and the scheduler.

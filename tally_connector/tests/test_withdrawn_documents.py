@@ -186,11 +186,18 @@ class TestOnlySubmittedRecordsAreSent(IntegrationTestCase):
 		cls.company = frappe.db.get_value("Company", {}, "name")
 
 	def test_every_voucher_source_filters_on_submitted(self):
+		import os
 		import re
 
 		from tally_connector.tally import extract as module
 
-		source = open(module.__file__).read()
+		# Every module of the package, since the readers live beside __init__.
+		package = os.path.dirname(module.__file__)
+		source = "\n".join(
+			open(os.path.join(package, name), encoding="utf-8").read()
+			for name in sorted(os.listdir(package))
+			if name.endswith(".py")
+		)
 		filters = re.findall(r"_date_filter\(\{([^}]*)\}", source)
 		self.assertTrue(filters, "no voucher source filters were found")
 		for text in filters:

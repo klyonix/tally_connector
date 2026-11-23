@@ -18,8 +18,6 @@ import datetime
 import unittest
 from decimal import Decimal
 
-from frappe.tests import UnitTestCase
-
 from tally_connector.tally import model
 from tally_connector.tally.rounding import MAX_PAISE, attempts
 
@@ -45,7 +43,7 @@ def _sale(party_amount="-210.00", with_bill=True):
 	return v
 
 
-class TestTheOriginalIsTriedFirst(UnitTestCase):
+class TestTheOriginalIsTriedFirst(unittest.TestCase):
 	def test_the_first_attempt_is_the_voucher_itself(self):
 		"""A voucher Tally would have taken anyway is never adjusted."""
 		v = _sale()
@@ -54,7 +52,7 @@ class TestTheOriginalIsTriedFirst(UnitTestCase):
 		self.assertEqual(paise, Decimal("0"))
 
 
-class TestMoneyIsConserved(UnitTestCase):
+class TestMoneyIsConserved(unittest.TestCase):
 	def test_every_variant_still_balances(self):
 		for variant, _paise in attempts(_sale()):
 			with self.subTest(paise=_paise):
@@ -81,7 +79,7 @@ class TestMoneyIsConserved(UnitTestCase):
 				self.assertEqual(party.amount + rounding.amount, Decimal("-210.00"))
 
 
-class TestTheShiftIsBounded(UnitTestCase):
+class TestTheShiftIsBounded(unittest.TestCase):
 	"""A voucher wrong for any other reason is refused rather than bent until
 	it fits."""
 
@@ -94,7 +92,7 @@ class TestTheShiftIsBounded(UnitTestCase):
 		self.assertEqual(len(list(attempts(_sale()))), 5)
 
 
-class TestTheBillFollowsTheLine(UnitTestCase):
+class TestTheBillFollowsTheLine(unittest.TestCase):
 	"""A bill reference that disagrees with its line sends the amount to On
 	Account, and the ageing stops meaning anything."""
 
@@ -107,7 +105,7 @@ class TestTheBillFollowsTheLine(UnitTestCase):
 				self.assertEqual(sum(r.amount for r in party.bill_refs), party.amount)
 
 
-class TestAwkwardShapes(UnitTestCase):
+class TestAwkwardShapes(unittest.TestCase):
 	def test_a_credit_notes_party_keeps_its_sign(self):
 		v = _sale(party_amount="210.00")
 		v.kind = "Credit Note"
@@ -141,7 +139,7 @@ class TestAwkwardShapes(UnitTestCase):
 		self.assertEqual([(l.ledger, l.amount) for l in v.lines], before)
 
 
-class TestThePushUsesIt(UnitTestCase):
+class TestThePushUsesIt(unittest.TestCase):
 	"""Wired into the push, and only when asked for."""
 
 	def _run(self, accepts_at, round_to_tally=True):

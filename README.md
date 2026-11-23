@@ -300,7 +300,7 @@ made, so a receipt clears the bill exactly.
 ## Development
 
 ```bash
-# tests: 241 integration + 72 offline
+# the whole suite
 bench --site your-site.local run-tests --app tally_connector
 
 # the offline half needs no site at all
@@ -326,7 +326,9 @@ ERPNext ──▶ extract ──▶ model ──────┼──▶ excel  
                           └────▶ validate ──▶ report
 ```
 
-`tally/extract.py` is the only module that imports `frappe`. Everything
+`tally/extract/` is the only package that imports `frappe`: one module for
+reading ERPNext's tables, one for the names Tally knows things by, one for the
+masters, and one each for invoices, payments and journals. Everything
 downstream - the model, the validator, the renderer - is pure, so a scenario runs
 against a JSON fixture in milliseconds with no site and no Tally. `tally/read.py`
 reads XML back into the model, which is what lets the validator check a file that

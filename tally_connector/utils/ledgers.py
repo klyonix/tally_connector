@@ -32,6 +32,7 @@ the build if the two sides ever drift again.
 
 import frappe
 from frappe.utils import cstr
+from frappe.utils.caching import request_cache
 
 from tally_connector.tally.extract_rules import tally_key
 
@@ -134,6 +135,7 @@ GROUP_DEBTORS = "Sundry Debtors"
 GROUP_CREDITORS = "Sundry Creditors"
 
 
+@request_cache
 def company_abbr(company):
 	"""The abbreviation ERPNext appends to this company's account names.
 
@@ -144,12 +146,7 @@ def company_abbr(company):
 	"""
 	if not company:
 		return ""
-	cache = getattr(frappe.local, "_tally_connector_abbrs", None)
-	if cache is None:
-		cache = frappe.local._tally_connector_abbrs = {}
-	if company not in cache:
-		cache[company] = cstr(frappe.get_cached_value("Company", company, "abbr") or "")
-	return cache[company]
+	return cstr(frappe.get_cached_value("Company", company, "abbr") or "")
 
 
 def party_ledger_name(name):
@@ -229,18 +226,14 @@ def _without_suffix(account, company=None):
 	return account
 
 
+@request_cache
 def _known_abbrs():
 	"""Every abbreviation in use, memoised per request for the same reason.
 
 	A process-wide cache was wrong here as well as slow: it outlived the request
 	and would have answered a second site with the first site's companies.
 	"""
-	cached = getattr(frappe.local, "_tally_connector_all_abbrs", None)
-	if cached is None:
-		cached = frappe.local._tally_connector_all_abbrs = [
-			cstr(r.abbr) for r in frappe.get_all("Company", fields=["abbr"]) if r.abbr
-		]
-	return cached
+	return [cstr(r.abbr) for r in frappe.get_all("Company", fields=["abbr"]) if r.abbr]
 
 
 class LedgerRegistry:

@@ -18,9 +18,8 @@ Pure: no site, no database.
 from __future__ import annotations
 
 import datetime
+import unittest
 from decimal import Decimal
-
-from frappe.tests import UnitTestCase
 
 from tally_connector.tally import model
 from tally_connector.tally.books import iter_vouchers, read_groups_and_ledgers
@@ -40,7 +39,7 @@ def _read_ledger(masters, name="Acme Ltd"):
 	return ledgers.get(name)
 
 
-class TestOpeningBalanceSurvivesTheRoundTrip(UnitTestCase):
+class TestOpeningBalanceSurvivesTheRoundTrip(unittest.TestCase):
 	"""Tally's sign, both ways: negative is a debit."""
 
 	def test_a_debit_balance_reads_back_as_the_same_debit(self):
@@ -61,7 +60,7 @@ class TestOpeningBalanceSurvivesTheRoundTrip(UnitTestCase):
 		self.assertNotIn("<OPENINGBALANCE>", xml)
 
 
-class TestGstRateReachesTheItem(UnitTestCase):
+class TestGstRateReachesTheItem(unittest.TestCase):
 	"""`GSTDETAILS.LIST > STATEWISEDETAILS.LIST > RATEDETAILS.LIST`.
 
 	Without it the import succeeds and the voucher lands in Tally's Uncertain
@@ -101,7 +100,7 @@ class TestGstRateReachesTheItem(UnitTestCase):
 		self.assertIn("<TAXABILITY>", xml)
 
 
-class TestVoucherGuidSurvivesTheRoundTrip(UnitTestCase):
+class TestVoucherGuidSurvivesTheRoundTrip(unittest.TestCase):
 	def _voucher(self, remote_id="SINV-0001"):
 		voucher = model.Voucher(
 			kind="Sales",
