@@ -1,5 +1,5 @@
 <template>
-  <Badge :theme="theme" :label="label" variant="subtle" />
+	<Badge :theme="theme" :label="label" variant="subtle" />
 </template>
 
 <script setup lang="ts">
@@ -15,14 +15,14 @@ import { Badge } from 'frappe-ui'
  * thing a status chip must never be.
  */
 const TONES: Record<string, string> = {
-  Success: 'green',
-  Completed: 'green',
-  Partial: 'orange',
-  Failed: 'red',
-  Cancelled: 'gray',
-  Running: 'blue',
-  Pending: 'gray',
-  Queued: 'gray',
+	Success: 'green',
+	Completed: 'green',
+	Partial: 'orange',
+	Failed: 'red',
+	Cancelled: 'gray',
+	Running: 'blue',
+	Pending: 'gray',
+	Queued: 'gray',
 }
 
 const props = defineProps<{ status: string }>()
