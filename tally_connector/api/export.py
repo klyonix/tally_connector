@@ -482,6 +482,56 @@ def _attach_xml(log_name, filename, path):
 	return file_doc.file_url
 
 
+# The package's file name. It names neither "masters" nor "vouchers", which is
+# how `export_status` finds the two loose files.
+PACKAGE_PREFIX = "tally_package_"
+
+
+def _attach_package(log_name, tag, masters_path, vouchers_path, company, from_date, to_date, export_format):
+	"""Store the export as one compressed package against the log.
+
+	The two loose files are kept as well, so a package that cannot be built
+	costs nothing but itself: it is logged and the export carries on.
+	"""
+	from tally_connector import __version__
+	from tally_connector.tally import package
+
+	try:
+		# nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		with open(masters_path, "rb") as fh:
+			masters = fh.read()
+		# nosemgrep: frappe-security-file-traversal - a path this code made, not one from a request
+		with open(vouchers_path, "rb") as fh:
+			vouchers = fh.read()
+		content, _manifest = package.build(
+			masters,
+			vouchers,
+			{
+				"app_version": __version__,
+				"erpnext_company": company,
+				"tally_company": frappe.db.get_single_value("Tally Settings", "company_name_in_tally"),
+				"from_date": str(from_date) if from_date else None,
+				"to_date": str(to_date) if to_date else None,
+			},
+			fmt=export_format,
+		)
+		file_doc = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": f"{PACKAGE_PREFIX}{tag}.zip",
+				"content": content,
+				"is_private": 1,
+				"attached_to_doctype": "Tally Export Log",
+				"attached_to_name": log_name,
+			}
+		)
+		file_doc.insert(ignore_permissions=True)
+		return file_doc.file_url
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "Tally Connector: export package")
+		return None
+
+
 def _estimate(from_date, to_date, company):
 	"""Roughly how many vouchers this range holds, for the background decision."""
 	total = 0
@@ -626,6 +676,9 @@ def run_full_export(log_name, from_date, to_date, company, push=False, export_fo
 
 			masters_url = _attach_xml(log_name, f"01_masters_{tag}.{ext}", masters_path)
 			vouchers_url = _attach_xml(log_name, f"02_vouchers_{tag}.{ext}", vouchers_path)
+			package_url = _attach_package(
+				log_name, tag, masters_path, vouchers_path, company, from_date, to_date, export_format
+			)
 
 			result = {
 				"success": True,
@@ -638,6 +691,7 @@ def run_full_export(log_name, from_date, to_date, company, push=False, export_fo
 				"blocking": blocking,
 				"masters_url": masters_url,
 				"vouchers_url": vouchers_url,
+				"package_url": package_url,
 			}
 
 			if push and export_format == EXCEL:
@@ -839,6 +893,7 @@ def export_status(log: str):
 		"error": doc.error_log,
 		"masters_url": next((f.file_url for f in files if "masters" in f.file_name), None),
 		"vouchers_url": next((f.file_url for f in files if "vouchers" in f.file_name), None),
+		"package_url": next((f.file_url for f in files if f.file_name.startswith(PACKAGE_PREFIX)), None),
 	}
 
 

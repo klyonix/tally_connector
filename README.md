@@ -89,12 +89,32 @@ all five.
 4. **Export transactions.** The vouchers for the range.
 5. **Complete.**
 
-**Download XML** and **Download Excel** each give you two files:
+**Download XML** and **Download Excel** each give you one compressed package to
+carry to the PC that runs Tally:
 
 ```
-01_masters.xml     import this into Tally first
-02_vouchers.xml    then this
+tally_package_<company>.zip
+  README.txt                  the import order, for whoever does the import
+  manifest.json               every file, its record count and its SHA-256
+  01_masters.xml              import this into Tally first
+  02_vouchers_2026-04.xml     then the vouchers, one file per month,
+  03_vouchers_2026-05.xml     in date order
 ```
+
+A year of XML travels as a fraction of its size. A month with more than 5,000
+vouchers is split into parts, so no single file is large enough to trouble
+Tally. Each voucher is moved into its month's file as written, never
+re-rendered, so the package holds exactly what was validated.
+
+**TallyPrime does not import from a zip.** Extract the package, then import the
+files one at a time in the order the README lists, checking Tally's import
+summary after each. `manifest.json` lets anybody check a file arrived intact:
+on Windows, `certutil -hashfile <file> SHA256` should print the hash the
+manifest gives for it. Every package carries its own id, so a second import of
+the same package can be told from an import of a newer export.
+
+The two loose files, `01_masters` and `02_vouchers`, stay on the job as well. An
+Excel package carries the two workbooks whole, unsplit.
 
 **Which format.** Both are written from the same export, so they cannot disagree
 about what the books say. What differs is how Tally reads them.
