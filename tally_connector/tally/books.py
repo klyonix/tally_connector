@@ -1,7 +1,7 @@
 """
 A Tally company's books, read out of its own export.
 
-The other direction from `extract.py`: this reads what Tally wrote rather than
+The other direction from `extract`: this reads what Tally wrote rather than
 writing what Tally reads. It produces plain records and nothing else - no
 frappe, no ERPNext vocabulary - so the mapping in `plan.py` can be argued with
 and tested against a fixture with no site at all.

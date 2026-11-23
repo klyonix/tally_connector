@@ -1,7 +1,7 @@
 """
 Rules about Tally's grammar that both the impure and the pure halves need.
 
-`tally/extract.py` is the one module that imports frappe, and `tally/validate.py`
+`tally/extract/` is the one package that imports frappe, and `tally/validate.py`
 must never import it - the whole layering rests on the validator running against
 a JSON fixture with no site. A constant they both depend on cannot live in
 either, so it lives here: no imports, nothing to go wrong.

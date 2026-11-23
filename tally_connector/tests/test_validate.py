@@ -1,7 +1,5 @@
 from typing import ClassVar
 
-from frappe.tests import UnitTestCase
-
 """
 The validator, offline. No site, no database, no Tally.
 
@@ -39,7 +37,7 @@ def checks_fired(report):
 	return {f.check for f in report.findings}
 
 
-class TestGoodScenariosAreClean(UnitTestCase):
+class TestGoodScenariosAreClean(unittest.TestCase):
 	def test_every_scenario_validates_except_the_one_that_should_not(self):
 		for name in golden.scenarios():
 			report = validate(golden.load(name))
@@ -59,7 +57,7 @@ class TestGoodScenariosAreClean(UnitTestCase):
 		self.assertFalse(report.checked["target_company_known"])
 
 
-class TestEveryCheckFires(UnitTestCase):
+class TestEveryCheckFires(unittest.TestCase):
 	"""One deliberately broken fixture per check."""
 
 	CASES: ClassVar[dict] = {
@@ -111,7 +109,7 @@ class TestEveryCheckFires(UnitTestCase):
 		self.assertEqual(sorted(every - covered), [])
 
 
-class TestTallyMatchesNamesItsOwnWay(UnitTestCase):
+class TestTallyMatchesNamesItsOwnWay(unittest.TestCase):
 	"""Case and punctuation ignored, read off a real refusal: a ledger sent as
 	`Stock In Hand` was refused as *"Improper change of Group Name for Ledger
 	'Stock-in-Hand'!"*."""
@@ -131,7 +129,7 @@ class TestTallyMatchesNamesItsOwnWay(UnitTestCase):
 		self.assertEqual(reserved_group("Stock Assets"), "")
 
 
-class TestTargetCompanyChecks(UnitTestCase):
+class TestTargetCompanyChecks(unittest.TestCase):
 	"""Dates and voucher types cannot be answered from ERPNext alone.
 
 	Where nothing is known about the destination the checks are skipped, rather
@@ -237,7 +235,7 @@ class TestTargetCompanyChecks(UnitTestCase):
 		self.assertTrue(validate(golden.load("sale_domestic_gst"), target).ok)
 
 
-class TestSeverity(UnitTestCase):
+class TestSeverity(unittest.TestCase):
 	def test_blocking_findings_are_separated_from_wrong_books(self):
 		report = validate(load_broken("no_bill_reference"))
 		self.assertFalse(report.ok)
@@ -255,7 +253,7 @@ class TestSeverity(UnitTestCase):
 		json.dumps(data)
 
 
-class TestReadBackFromXml(UnitTestCase):
+class TestReadBackFromXml(unittest.TestCase):
 	"""The validator's second way in: XML that already exists.
 
 	This is what lets stage 2 check the live export before stage 3 has bridged
@@ -309,32 +307,37 @@ class TestReadBackFromXml(UnitTestCase):
 		self.assertTrue(back.vouchers[0].balances())
 
 
-class TestOffline(UnitTestCase):
+class TestOffline(unittest.TestCase):
 	def test_only_the_extract_layer_imports_frappe(self):
 		"""The property the whole layering exists for.
 
-		`extract.py` is the one module that reads ERPNext, and it is named here
-		rather than pattern-matched, so a second impure module fails this test
-		instead of quietly widening the exception. Everything else in the package
-		stays runnable with no site, which is what keeps the offline suite
-		offline.
+		`tally/extract/` is the one package that reads ERPNext, and it is named
+		here rather than pattern-matched, so a second impure module fails this
+		test instead of quietly widening the exception. Everything else in the
+		package stays runnable with no site, which is what keeps the offline
+		suite offline.
 
 		Asserted by reading the sources rather than by checking `sys.modules`,
 		because `bench run-tests` has frappe imported already and the check would
 		pass for the wrong reason - and offline is exactly the case bench cannot
-		exercise.
+		exercise. The walk goes into subpackages, so a reader added in a new
+		folder is checked too.
 		"""
 		here = os.path.dirname(os.path.abspath(__file__))
 		package = os.path.normpath(os.path.join(here, "..", "tally"))
-		allowed = {"extract.py"}
+		allowed = os.path.join(package, "extract")
 		offenders = []
-		for name in sorted(os.listdir(package)):
-			if not name.endswith(".py") or name in allowed:
+		for root, _dirs, files in os.walk(package):
+			if root == allowed or root.startswith(allowed + os.sep):
 				continue
-			with open(os.path.join(package, name), encoding="utf-8") as fh:
-				for lineno, line in enumerate(fh, 1):
-					if line.strip().startswith(("import frappe", "from frappe")):
-						offenders.append(f"{name}:{lineno}")
+			for name in sorted(files):
+				if not name.endswith(".py"):
+					continue
+				path = os.path.join(root, name)
+				with open(path, encoding="utf-8") as fh:
+					for lineno, line in enumerate(fh, 1):
+						if line.strip().startswith(("import frappe", "from frappe")):
+							offenders.append(f"{os.path.relpath(path, package)}:{lineno}")
 		self.assertEqual(
 			offenders,
 			[],
@@ -342,13 +345,17 @@ class TestOffline(UnitTestCase):
 		)
 
 	def test_the_one_impure_module_is_still_impure(self):
-		"""An allow-list that names a module which has stopped importing frappe
+		"""An allow-list that names a package which has stopped importing frappe
 		is an exemption nobody notices is stale."""
 		here = os.path.dirname(os.path.abspath(__file__))
-		extract = os.path.normpath(os.path.join(here, "..", "tally", "extract.py"))
-		self.assertTrue(os.path.exists(extract))
-		with open(extract, encoding="utf-8") as fh:
-			self.assertIn("import frappe", fh.read())
+		extract = os.path.normpath(os.path.join(here, "..", "tally", "extract"))
+		self.assertTrue(os.path.isdir(extract))
+		sources = [
+			open(os.path.join(extract, name), encoding="utf-8").read()
+			for name in os.listdir(extract)
+			if name.endswith(".py")
+		]
+		self.assertTrue(any("import frappe" in source for source in sources))
 
 
 if __name__ == "__main__":
